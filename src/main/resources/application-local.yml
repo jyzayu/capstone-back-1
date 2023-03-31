@@ -1,0 +1,27 @@
+logging:
+  level:
+    root: warn
+    com.restApi.restApiSpringBootApp: debug #debug info warn error fatal off
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/capstone
+    username: root
+    password: test1234
+  messages:
+    basename: i18n/exception
+    encoding: UTF-8
+  jpa:
+    hibernate.ddl-auto: update
+    properties.hibernate:
+      format_sql: true
+    show-sql: true
+    open-in-view: false
+  url:
+    base: http://localhost:8080
+  config:
+    activate:
+      on-profile: local
