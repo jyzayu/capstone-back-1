@@ -1,9 +1,0 @@
-social.kakao:
-  client-id: ${KAKAO_OAUTH_CLIENT_ID}
-  client-secret: ${KAKAO_CLIENT_SECERET}
-  redirect: "/login/oauth2/code/kakao"
-  url.token: "https://kauth.kakao.com/oauth/token"
-  url.profile: "https://kapi.kakao.com/v2/user/me"
-spring:
-  jwt:
-    secret: {AccessToken}
