@@ -6,4 +6,4 @@ social.kakao:
   url.profile: "https://kapi.kakao.com/v2/user/me"
 spring:
   jwt:
-    secret: {AccessToken}
+    secret: SnNvbldlYlRva2VuQXV0aGVudGljYXRpb25XaXRoU3ByaW5nQm9vdFRlc3RQcm9qZWN0U2VjcmV0S2V5
