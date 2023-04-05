@@ -1,5 +1,6 @@
 package capstone.be.global.jwt;
 
+import capstone.be.domain.user.service.CustomUserDetailsService;
 import capstone.be.global.advice.exception.CAuthenticationEntryPointException;
 import capstone.be.global.dto.jwt.TokenDto;
 import io.jsonwebtoken.*;
@@ -27,12 +28,12 @@ import java.lang.String;
 @Component
 public class JwtProvider {
 
-    @Value("spring.jwt.secret")
+    @Value("${spring.jwt.secret}")
     private String secretKey;
     private String ROLES = "roles";
     private final Long accessTokenValidMillisecond = 24 * 60 * 60 * 1000L; // 24 hour
     private final Long refreshTokenValidMillisecond = 14 * 24 * 60 * 60 * 1000L; // 14 day
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
     @PostConstruct
     protected void init() {
