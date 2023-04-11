@@ -3,6 +3,7 @@ package capstone.be.domain.user.service;
 import capstone.be.domain.user.domain.User;
 import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.global.advice.exception.*;
+import capstone.be.global.dto.jwt.ReissueDto;
 import capstone.be.global.dto.jwt.TokenDto;
 import capstone.be.global.dto.jwt.TokenRequestDto;
 import capstone.be.global.dto.signup.UserLoginRequestDto;
@@ -12,14 +13,18 @@ import capstone.be.global.jwt.RefreshToken;
 import capstone.be.global.jwt.RefreshTokenJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -28,6 +33,7 @@ public class SignService {
     private final UserRepository userJpaRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final RedisTemplate redisTemplate;
     private final RefreshTokenJpaRepository tokenJpaRepo;
 
     @Transactional
@@ -65,33 +71,27 @@ public class SignService {
 
 
     @Transactional
-    public TokenDto reissue(HttpServletRequest request) {
+    public ReissueDto reissue(HttpServletRequest request) {
 
         // request 에서 token 을 취한다.
-        String token = jwtProvider.resolveToken(request);
+        String rtk = jwtProvider.resolveToken(request);
 
         // 만료된 refresh token 에러
-        if (!jwtProvider.validationToken(token)) {
+        if (!jwtProvider.validationToken(rtk)) {
             throw new CRefreshTokenException();
         }
 
-        // AccessToken 에서 Username (pk) 가져오기
-        String accessToken = token;
-        Authentication authentication = jwtProvider.getAuthentication(accessToken);
+        //3. 저장된 refresh token 찾기
+        Long userId = Long.parseLong(jwtProvider.getSubjects(rtk));
+        String newRTK = (String) redisTemplate.opsForValue().get("RT:" + userId);
 
-        // user pk로 유저 검색 / repo 에 저장된 Refresh Token 이 없음
-        User user = userJpaRepo.findById(Long.valueOf((authentication.getName())))
-                .orElseThrow(CUserNotFoundException::new);
-        RefreshToken refreshToken = tokenJpaRepo.findByUserkey(user.getUserId())
-                .orElseThrow(CRefreshTokenException::new);
+        if (ObjectUtils.isEmpty(newRTK) || !newRTK.equals(rtk)){
+            throw new CRefreshTokenException();
+        }
+        TokenDto tokenDto = jwtProvider.createTokenDto(userId, Collections.singletonList("ROLE_USER"));
+        //Todo: 4. redis에 있는 RTK update 정상동작하는지?
+        redisTemplate.opsForValue().set("RT:" + userId, rtk, jwtProvider.getExpiration(newRTK), TimeUnit.MILLISECONDS);
 
-        // 리프레시 토큰 불일치 에러
-//        if (!refreshToken.getToken().equals(tokenRequestDto.getRefreshToken()))
-//            throw new CRefreshTokenException();
-
-        // AccessToken
-        TokenDto newCreatedToken = jwtProvider.createTokenDto(user.getUserId(), Collections.singletonList("ROLE_USER"));
-
-        return newCreatedToken;
+        return new ReissueDto(tokenDto.getAccessToken());
     }
 }
