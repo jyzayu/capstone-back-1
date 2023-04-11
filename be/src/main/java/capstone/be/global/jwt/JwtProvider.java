@@ -8,6 +8,7 @@ import io.jsonwebtoken.impl.Base64UrlCodec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,6 +35,8 @@ public class JwtProvider {
     private final Long accessTokenValidMillisecond = 24 * 60 * 60 * 1000L; // 24 hour
     private final Long refreshTokenValidMillisecond = 14 * 24 * 60 * 60 * 1000L; // 14 day
     private final CustomUserDetailsService userDetailsService;
+
+    private final RedisTemplate redisTemplate;
 
     @PostConstruct
     protected void init() {
@@ -63,6 +66,8 @@ public class JwtProvider {
 
         String refreshToken = Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setClaims(claims)
+                .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshTokenValidMillisecond))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
@@ -71,6 +76,14 @@ public class JwtProvider {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    //JWT 토큰의 만료시간
+    public Long getExpiration(String token){
+        Date expiration = Jwts.parser().setSigningKey(secretKey.getBytes())
+                .parseClaimsJws(token).getBody().getExpiration();
+        long now = new Date().getTime();
+        return expiration.getTime() - now;
     }
 
     // Jwt 로 인증정보를 조회
@@ -105,7 +118,7 @@ public class JwtProvider {
 
     // HTTP Request 의 Header 에서 Token Parsing -> "X-AUTH-TOKEN: jwt"
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("X-AUTH-TOKEN");
+        return request.getHeader("X-AUTH-TOKEN").substring(7);
     }
 
     // jwt 의 유효성 및 만료일자 확인

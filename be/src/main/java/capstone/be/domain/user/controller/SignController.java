@@ -10,6 +10,7 @@ import capstone.be.global.advice.exception.CEmailSignupFailedException;
 import capstone.be.global.advice.exception.CNicknameSignupFailed2Exception;
 import capstone.be.global.advice.exception.CNicknameSignupFailedException;
 import capstone.be.global.advice.exception.CUserNotFoundException;
+import capstone.be.global.dto.jwt.ReissueDto;
 import capstone.be.global.dto.jwt.TokenDto;
 import capstone.be.global.dto.jwt.TokenRequestDto;
 import capstone.be.global.dto.response.ResponseService;
@@ -21,12 +22,19 @@ import capstone.be.global.jwt.JwtProvider;
 import capstone.be.global.jwt.RefreshTokenJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,52 +47,73 @@ public class SignController {
     private final ResponseService responseService;
     private final JwtProvider jwtProvider;
     private final UserRepository userJpaRepo;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private final RefreshTokenJpaRepository tokenJpaRepo;
 
-    @PostMapping("/login")
-    public HttpEntity<TokenDto> login(
-            @RequestBody UserLoginRequestDto userLoginRequestDto) {
+    @PostMapping("/redisTest")
+    public HttpEntity<List> addRedisKey() {
+        ValueOperations<String, String> vop = redisTemplate.opsForValue();
+        vop.set("yellow", "banana");
+        vop.set("red", "apple");
+        vop.set("green", "watermelon");
+        return new HttpEntity<>(vop.multiGet(List.of("yellow","red","green")));
 
-        TokenDto tokenDto = signService.login(userLoginRequestDto);
-        return new HttpEntity<>(tokenDto);
     }
 
-    @PostMapping("/signup")
-    public HttpEntity<Long> signup(
-            @RequestBody UserSignupRequestDto userSignupRequestDto) {
-        Long signupId = signService.signup(userSignupRequestDto);
-        return new HttpEntity<>(signupId);
+    @PostMapping("/logout")
+    public HttpEntity<String> logout(HttpServletRequest request){
+        String accessToken = request.getHeader("X-AUTH-TOKEN");
 
+        //atk로 userId 얻기
+        String userId = jwtProvider.getSubjects(accessToken);
+
+        //엑세스 토큰 남은 유효시간
+        Long expiration = jwtProvider.getExpiration(accessToken);
+
+        //accessToken blackList 등록 expiration설정해서
+        redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+
+        // 저장된 rtk가 있다면 refreshToken삭제
+        if (redisTemplate.opsForValue().get("RT:" + userId) != null){
+            redisTemplate.delete(userId);
+        }
+
+        return new HttpEntity<>("logout success");
     }
 
     @PostMapping("/reissue")
-    public HttpEntity<TokenDto> reissue(HttpServletRequest request) {
+    public HttpEntity<ReissueDto> reissue(HttpServletRequest request) {
         return new HttpEntity<>(signService.reissue(request));
     }
 
 // Todo: code 프론트에서 보내주는 것 사용하게 되면  UserSocialLoginRequestDto및 카카오토큰 요청 코드 추가하기
     @PostMapping("/auth/login")
-    public HttpEntity<LoginResponseDto> loginByKakao(
+    public HttpEntity<?> loginByKakao(
             @RequestBody UserSocialLoginRequestDto socialLoginRequestDto) {
 
         String kakaoAccessToken = socialLoginRequestDto.getAccessToken();
         KakaoProfile kakaoProfile = kakaoService.getKakaoProfile(kakaoAccessToken);
         if (kakaoProfile == null) throw new CUserNotFoundException();
 
-        Optional<User> user = userJpaRepo.findById(kakaoProfile.getId());
+        Long userId = kakaoProfile.getId();
+        Optional<User> user = userJpaRepo.findById(userId);
         //신규 사용자인 경우 카카오토큰과 true
         if(user.isEmpty()){
             return new HttpEntity<>(
-                    new LoginResponseDto(kakaoAccessToken, true));
+                    //Todo: rtk를 null로하면 rtk:null로 갈텐데 controller에서 response type통일하지않나? exception message 보내는식으로?
+                    //Todo: response type?로하면 되나? 언제쓰는거지? generic type같은건가?
+                    new LoginResponseDto(kakaoAccessToken, null, true));
         }
         else {
+            TokenDto tokenDto = jwtProvider.createTokenDto(userId, Collections.singletonList("ROLE_USER"));
+
+            //redis에 rtk 저장
+            Long expiration = jwtProvider.getExpiration(tokenDto.getRefreshToken());
+            redisTemplate.opsForValue().set("RT:" + userId,tokenDto.getRefreshToken(), expiration, TimeUnit.MILLISECONDS);
+
             //기존 사용자의 경우 JWT토큰과 false
-            return new HttpEntity<>(
-                    new LoginResponseDto(
-                            jwtProvider.createTokenDto(user.get().getUserId(), Collections.singletonList("ROLE_USER")).getAccessToken(),
-                            false)
-            );
+            return new HttpEntity<>(new LoginResponseDto(tokenDto.getAccessToken(), tokenDto.getRefreshToken(), false));
         }
     }
 
@@ -117,7 +146,14 @@ public class SignController {
                 .build());
 
         System.out.println(userId);
-        return new HttpEntity<>(jwtProvider.createTokenDto(userId, Collections.singletonList("ROLE_USER")));
+        TokenDto tokenDto = jwtProvider.createTokenDto(userId, Collections.singletonList("ROLE_USER"));
+
+        // redis 에 rtk 저장
+        Long expiration = jwtProvider.getExpiration(tokenDto.getRefreshToken());
+        redisTemplate.opsForValue().set("RT:" + userId,tokenDto.getRefreshToken(), expiration, TimeUnit.MILLISECONDS);
+
+
+        return new HttpEntity<>(tokenDto);
     }
 
 //} 회원가입을 하려면 사용자 정보 email을 불러와서 id로 사용하여 repo에 저장해야하는데
