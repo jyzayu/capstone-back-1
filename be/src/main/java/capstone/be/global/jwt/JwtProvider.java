@@ -2,9 +2,13 @@ package capstone.be.global.jwt;
 
 import capstone.be.domain.user.service.CustomUserDetailsService;
 import capstone.be.global.advice.exception.CAuthenticationEntryPointException;
+import capstone.be.global.advice.exception.CJwtException;
+import capstone.be.global.advice.exception.CLogoutTokenException;
 import capstone.be.global.dto.jwt.TokenDto;
+import com.google.gson.Gson;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.Base64UrlCodec;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,10 +18,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.security.auth.Subject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
@@ -35,8 +42,8 @@ public class JwtProvider {
     private final Long accessTokenValidMillisecond = 24 * 60 * 60 * 1000L; // 24 hour
     private final Long refreshTokenValidMillisecond = 14 * 24 * 60 * 60 * 1000L; // 14 day
     private final CustomUserDetailsService userDetailsService;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    private final RedisTemplate redisTemplate;
 
     @PostConstruct
     protected void init() {
@@ -80,7 +87,7 @@ public class JwtProvider {
 
     //JWT 토큰의 만료시간
     public Long getExpiration(String token){
-        Date expiration = Jwts.parser().setSigningKey(secretKey.getBytes())
+        Date expiration = Jwts.parser().setSigningKey(secretKey)
                 .parseClaimsJws(token).getBody().getExpiration();
         long now = new Date().getTime();
         return expiration.getTime() - now;
@@ -118,23 +125,38 @@ public class JwtProvider {
 
     // HTTP Request 의 Header 에서 Token Parsing -> "X-AUTH-TOKEN: jwt"
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("X-AUTH-TOKEN").substring(7);
+        String headerAuth = request.getHeader("Authorization");
+        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+            return headerAuth.substring(7, headerAuth.length());
+        }
+        return null;
     }
 
     // jwt 의 유효성 및 만료일자 확인
     public boolean validationToken(String token) {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+                //Redis에 있는 엑세스 토큰인 경우 로그아웃 처리된 엑세스 토큰임.
+                String blackToken = redisTemplate.opsForValue().get(token);
+                if(StringUtils.hasText(blackToken))
+                    throw new CLogoutTokenException("로그아웃 처리된 엑세스 토큰입니다.");
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.error("잘못된 Jwt 서명입니다.");
+            throw new CJwtException();
         } catch (ExpiredJwtException e) {
             log.error("만료된 토큰입니다.");
+            throw new CJwtException();
         } catch (UnsupportedJwtException e) {
             log.error("지원하지 않는 토큰입니다.");
+            throw new CJwtException();
         } catch (IllegalArgumentException e) {
             log.error("잘못된 토큰입니다.");
+            throw new CJwtException();
+        } catch (CLogoutTokenException e){
+            log.error("로그아웃 토근입니다.");
+            throw new CJwtException();
         }
-        return false;
     }
+
 }

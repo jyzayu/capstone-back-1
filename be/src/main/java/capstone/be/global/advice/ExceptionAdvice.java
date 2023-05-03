@@ -148,7 +148,7 @@ public class ExceptionAdvice {
     }
 
     /**
-     * -1005
+     * 009
      * refresh token 에러시 발생 시키는 에러
      */
     @ExceptionHandler(CRefreshTokenException.class)
@@ -160,14 +160,14 @@ public class ExceptionAdvice {
     }
 
     /**
-     * -1006
+     * 008
      * 액세스 토큰 만료시 발생하는 에러
      */
     @ExceptionHandler(CLogoutTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected HttpEntity<CommonResult> expiredAccessTokenException(HttpServletRequest request, CLogoutTokenException e) {
+    protected HttpEntity<CommonResult> logoutAccessTokenException(HttpServletRequest request, CLogoutTokenException e) {
         return new HttpEntity<>(responseService.getFailResult(
-                (getMessage("expiredAccessToken.code"))
+                (getMessage("accessTokenInValid.code"))
         ));
     }
 

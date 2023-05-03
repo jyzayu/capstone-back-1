@@ -2,7 +2,9 @@ package capstone.be.global.config;
 
 import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.global.jwt.JwtAuthenticationFilter;
+import capstone.be.global.jwt.JwtExceptionFilter;
 import capstone.be.global.jwt.JwtProvider;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -35,11 +37,11 @@ public class SecurityConfig {
 
     //요청 처리위해 위임시키는 Servlet 도달하기 전에 CorsFilter AuthenticationFitler를 거친다.
     private final JwtProvider jwtProvider;
+    private final RedisTemplate redisTemplate;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final Gson gson;
 
-    private final RedisTemplate redisTemplate;
-    private final UserRepository userRepository;
 
 
     //CORS 차단 해제
@@ -68,8 +70,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .mvcMatchers(HttpMethod.POST, "/api/auth/**", "/api/redisTest").permitAll()
-                        .mvcMatchers(HttpMethod.GET, "/exception/**", "/login/oauth2/code/kakao").permitAll()
+                        .mvcMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                        .mvcMatchers(HttpMethod.GET, "/exception/**", "/login/oauth2/code/kakao", "/api/redisTest").permitAll()
                         .anyRequest().authenticated())
 
                 .exceptionHandling()
@@ -79,6 +81,7 @@ public class SecurityConfig {
 
 //               JWT 검증 필터
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtExceptionFilter(gson), JwtAuthenticationFilter.class)
                 .build();
     }
 
