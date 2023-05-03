@@ -49,21 +49,10 @@ public class SignController {
     private final UserRepository userJpaRepo;
     private final RedisTemplate<String, String> redisTemplate;
 
-    private final RefreshTokenJpaRepository tokenJpaRepo;
 
-    @PostMapping("/redisTest")
-    public HttpEntity<List> addRedisKey() {
-        ValueOperations<String, String> vop = redisTemplate.opsForValue();
-        vop.set("yellow", "banana");
-        vop.set("red", "apple");
-        vop.set("green", "watermelon");
-        return new HttpEntity<>(vop.multiGet(List.of("yellow","red","green")));
-
-    }
-
-    @PostMapping("/logout")
+    @PostMapping("/auth/logout")
     public HttpEntity<String> logout(HttpServletRequest request){
-        String accessToken = request.getHeader("X-AUTH-TOKEN");
+        String accessToken = jwtProvider.resolveToken(request);
 
         //atk로 userId 얻기
         String userId = jwtProvider.getSubjects(accessToken);
@@ -76,13 +65,13 @@ public class SignController {
 
         // 저장된 rtk가 있다면 refreshToken삭제
         if (redisTemplate.opsForValue().get("RT:" + userId) != null){
-            redisTemplate.delete(userId);
+            redisTemplate.delete("RT:" + userId);
         }
 
-        return new HttpEntity<>("logout success");
+        return new HttpEntity<>("");
     }
 
-    @PostMapping("/reissue")
+    @PostMapping("/auth/reissue")
     public HttpEntity<ReissueDto> reissue(HttpServletRequest request) {
         return new HttpEntity<>(signService.reissue(request));
     }
@@ -155,9 +144,4 @@ public class SignController {
 
         return new HttpEntity<>(tokenDto);
     }
-
-//} 회원가입을 하려면 사용자 정보 email을 불러와서 id로 사용하여 repo에 저장해야하는데
-    // 이는 token이 있어야 가능하다. 토큰으로 사용자 정보 불러오는데 리다이렉트에서 코드 받아서 토큰 받고 전달하고 끝내면 다시 회원가입 요청해야함
-//    토큰을 받았으면 바로 다시 회원가입또는 로그인 요청?
-
 }

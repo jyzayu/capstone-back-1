@@ -28,7 +28,7 @@ userExistException:
   msg: "이미 가입된 계정입니다. 로그인을 해주세요"
 
 refreshTokenInValid:
-  code: "-1005"
+  code: "AUTH_009"
   msg: "리프레쉬 토큰이 잘못되었습니다."
 expiredAccessToken:
   code: "-1006"

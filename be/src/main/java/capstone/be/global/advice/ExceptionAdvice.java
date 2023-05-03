@@ -26,15 +26,15 @@ public class ExceptionAdvice {
     /***
      * -9999
      * default Exception
-     */
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected HttpEntity<CommonResult> defaultException(HttpServletRequest request, Exception e) {
-        log.info(String.valueOf(e));
-
-        return new HttpEntity<>(responseService.getFailResult(
-                (getMessage("unKnown.code"))));
-    }
+//     */
+//    @ExceptionHandler(Exception.class)
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    protected HttpEntity<CommonResult> defaultException(HttpServletRequest request, Exception e) {
+//        log.info(String.valueOf(e));
+//
+//        return new HttpEntity<>(responseService.getFailResult(
+//                (getMessage("unKnown.code"))));
+//    }
 
     /***
      * -1000
@@ -163,9 +163,9 @@ public class ExceptionAdvice {
      * -1006
      * 액세스 토큰 만료시 발생하는 에러
      */
-    @ExceptionHandler(CExpiredAccessTokenException.class)
+    @ExceptionHandler(CLogoutTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected HttpEntity<CommonResult> expiredAccessTokenException(HttpServletRequest request, CExpiredAccessTokenException e) {
+    protected HttpEntity<CommonResult> expiredAccessTokenException(HttpServletRequest request, CLogoutTokenException e) {
         return new HttpEntity<>(responseService.getFailResult(
                 (getMessage("expiredAccessToken.code"))
         ));

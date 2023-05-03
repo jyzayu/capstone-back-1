@@ -25,7 +25,7 @@ public class OAuthController {
     private final RefreshTokenJpaRepository tokenJpaRepo;
 
     private final JwtProvider jwtProvider;
-// Todo: code는 프론트에서 nickname,email과 함께 보내주는 것으로 수정  email동의 했으면 nickname을 같이 보내준다.
+// Todo: code를 프론트 통신할 떄 보내주면 해당 코드는 사용하지 않음, 테스트를 위해 사용
 
     @GetMapping("/login/oauth2/code/kakao")
     public HttpEntity<String> getAuthCode(@RequestParam String code) throws Exception {
