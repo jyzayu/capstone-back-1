@@ -1,4 +1,4 @@
-package capstone.be.domain.user.controller;
+package capstone.be.domain.user.repository.controller;
 
 import capstone.be.domain.user.domain.User;
 import capstone.be.domain.user.dto.KakaoProfile;

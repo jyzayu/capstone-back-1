@@ -17,6 +17,7 @@ Spring Boot
 * Spring Web
 * Spring Data JPA
 * Spring Security
+* Spring Aws
 * MySQL Driver
 * Lombok
 
