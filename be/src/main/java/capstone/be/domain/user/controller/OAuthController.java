@@ -1,4 +1,6 @@
-package capstone.be.domain.user.repository.controller;
+
+
+package capstone.be.domain.user.controller;
 
 
 import capstone.be.domain.user.dto.RetKakaoOAuth;
@@ -8,7 +10,7 @@ import capstone.be.global.dto.response.ResponseService;
 import capstone.be.global.jwt.JwtProvider;
 import capstone.be.global.jwt.RefreshTokenJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,11 +30,11 @@ public class OAuthController {
 // Todo: code를 프론트 통신할 떄 보내주면 해당 코드는 사용하지 않음, 테스트를 위해 사용
 
     @GetMapping("/login/oauth2/code/kakao")
-    public HttpEntity<String> getAuthCode(@RequestParam String code) throws Exception {
+    public ResponseEntity<String> getAuthCode(@RequestParam String code) throws Exception {
         System.out.println("author code = " + code);
         // code로 token 요청
         RetKakaoOAuth tokenInfo = kakaoService.getKakaoTokenInfo(code);
         String access_Token = tokenInfo.getAccess_token();
-        return new HttpEntity<>(access_Token);
+        return ResponseEntity.ok(access_Token);
     }
 }

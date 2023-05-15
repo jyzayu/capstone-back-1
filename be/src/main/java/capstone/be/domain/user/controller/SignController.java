@@ -1,4 +1,5 @@
-package capstone.be.domain.user.repository.controller;
+
+package capstone.be.domain.user.controller;
 
 import capstone.be.domain.user.domain.User;
 import capstone.be.domain.user.dto.KakaoProfile;
@@ -6,33 +7,25 @@ import capstone.be.domain.user.dto.LoginResponseDto;
 import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.domain.user.service.KakaoService;
 import capstone.be.domain.user.service.SignService;
-import capstone.be.global.advice.exception.CEmailSignupFailedException;
-import capstone.be.global.advice.exception.CNicknameSignupFailed2Exception;
-import capstone.be.global.advice.exception.CNicknameSignupFailedException;
-import capstone.be.global.advice.exception.CUserNotFoundException;
+import capstone.be.global.advice.exception.security.CEmailSignupFailedException;
+import capstone.be.global.advice.exception.security.CNicknameSignupFailed2Exception;
+import capstone.be.global.advice.exception.security.CNicknameSignupFailedException;
+import capstone.be.global.advice.exception.security.CUserNotFoundException;
 import capstone.be.global.dto.jwt.ReissueDto;
 import capstone.be.global.dto.jwt.TokenDto;
-import capstone.be.global.dto.jwt.TokenRequestDto;
 import capstone.be.global.dto.response.ResponseService;
-import capstone.be.global.dto.signup.UserLoginRequestDto;
 import capstone.be.global.dto.signup.UserSignupRequestDto;
 import capstone.be.global.dto.signup.UserSocialLoginRequestDto;
 import capstone.be.global.dto.signup.UserSocialSignupRequestDto;
 import capstone.be.global.jwt.JwtProvider;
-import capstone.be.global.jwt.RefreshTokenJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.Duration;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +44,7 @@ public class SignController {
 
 
     @PostMapping("/auth/logout")
-    public HttpEntity<String> logout(HttpServletRequest request){
+    public ResponseEntity<String> logout(HttpServletRequest request){
         String accessToken = jwtProvider.resolveToken(request);
 
         //atk로 userId 얻기
@@ -68,17 +61,17 @@ public class SignController {
             redisTemplate.delete("RT:" + userId);
         }
 
-        return new HttpEntity<>("");
+        return ResponseEntity.ok("");
     }
 
     @PostMapping("/auth/reissue")
-    public HttpEntity<ReissueDto> reissue(HttpServletRequest request) {
-        return new HttpEntity<>(signService.reissue(request));
+    public ResponseEntity<ReissueDto> reissue(HttpServletRequest request) {
+        return ResponseEntity.ok(signService.reissue(request));
     }
 
-// Todo: code 프론트에서 보내주는 것 사용하게 되면  UserSocialLoginRequestDto및 카카오토큰 요청 코드 추가하기
+    // Todo: code 프론트에서 보내주는 것 사용하게 되면  UserSocialLoginRequestDto및 카카오토큰 요청 코드 추가하기
     @PostMapping("/auth/login")
-    public HttpEntity<?> loginByKakao(
+    public ResponseEntity<?> loginByKakao(
             @RequestBody UserSocialLoginRequestDto socialLoginRequestDto) {
 
         String kakaoAccessToken = socialLoginRequestDto.getAccessToken();
@@ -89,7 +82,7 @@ public class SignController {
         Optional<User> user = userJpaRepo.findById(userId);
         //신규 사용자인 경우 카카오토큰과 true
         if(user.isEmpty()){
-            return new HttpEntity<>(
+            return ResponseEntity.ok(
                     //Todo: rtk를 null로하면 rtk:null로 갈텐데 controller에서 response type통일하지않나? exception message 보내는식으로?
                     //Todo: response type?로하면 되나? 언제쓰는거지? generic type같은건가?
                     new LoginResponseDto(kakaoAccessToken, null, true));
@@ -102,14 +95,14 @@ public class SignController {
             redisTemplate.opsForValue().set("RT:" + userId,tokenDto.getRefreshToken(), expiration, TimeUnit.MILLISECONDS);
 
             //기존 사용자의 경우 JWT토큰과 false
-            return new HttpEntity<>(new LoginResponseDto(tokenDto.getAccessToken(), tokenDto.getRefreshToken(), false));
+            return ResponseEntity.ok(new LoginResponseDto(tokenDto.getAccessToken(), tokenDto.getRefreshToken(), false));
         }
     }
 
 
     // Todo : 에러 2,3,4 경우 카카오 계정이 1개이고 , 이메일 형식이 없어 테스트 못 함
     @PostMapping("/auth/signup")
-    public HttpEntity<TokenDto> signupBySocial(
+    public ResponseEntity<TokenDto> signupBySocial(
             @RequestBody UserSocialSignupRequestDto socialSignupRequestDto) {
 
         KakaoProfile kakaoProfile =
@@ -142,6 +135,6 @@ public class SignController {
         redisTemplate.opsForValue().set("RT:" + userId,tokenDto.getRefreshToken(), expiration, TimeUnit.MILLISECONDS);
 
 
-        return new HttpEntity<>(tokenDto);
+        return ResponseEntity.ok(tokenDto);
     }
 }

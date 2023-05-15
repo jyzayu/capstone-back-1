@@ -1,13 +1,15 @@
+
+
 package capstone.be.global.advice;
 
-import capstone.be.global.advice.exception.*;
+import capstone.be.global.advice.exception.security.*;
 import capstone.be.global.dto.response.CommonResult;
 import capstone.be.global.dto.response.ResponseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -26,13 +28,13 @@ public class ExceptionAdvice {
     /***
      * -9999
      * default Exception
-//     */
+     //     */
 //    @ExceptionHandler(Exception.class)
 //    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    protected HttpEntity<CommonResult> defaultException(HttpServletRequest request, Exception e) {
+//    protected ResponseEntity<CommonResult> defaultException(HttpServletRequest request, Exception e) {
 //        log.info(String.valueOf(e));
 //
-//        return new HttpEntity<>(responseService.getFailResult(
+//        return new ResponseEntity<>(responseService.getFailResult(
 //                (getMessage("unKnown.code"))));
 //    }
 
@@ -41,45 +43,32 @@ public class ExceptionAdvice {
      * 유저를 찾지 못했을 때 발생시키는 예외
      */
     @ExceptionHandler(CUserNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected HttpEntity<CommonResult> userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
-        return new HttpEntity<>(responseService.getFailResult(
+    protected ResponseEntity<CommonResult> userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseService.getFailResult(
                 (getMessage("userNotFound.code"))
         ));
     }
 
-    /***
-     * -1001
-     * 유저 이메일 로그인 실패 시 발생시키는 예외
-     */
-    @ExceptionHandler(CEmailLoginFailedException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    protected HttpEntity<CommonResult> emailLoginFailedException(HttpServletRequest request, CEmailLoginFailedException e) {
-        return new HttpEntity<>(responseService.getFailResult(
-                (getMessage("emailLoginFailed.code"))
-        ));
-    }
+
 
     /***
-     * AUTH_001  1007
+     * AUTH_001
      * Social 인증 과정에서 문제 발생하는 에러  잘못된 카카오 액세스토큰 ,등등
      */
-    @ExceptionHandler(capstone.be.global.advice.exception.CCommunicationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected HttpEntity<CommonResult> communicationException(HttpServletRequest request, CCommunicationException e) {
-        return new HttpEntity<>(responseService.getFailResult(
+    @ExceptionHandler(CCommunicationException.class)
+    protected ResponseEntity<CommonResult> communicationException(HttpServletRequest request, CCommunicationException e) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseService.getFailResult(
                 (getMessage("communicationException.code"))
         ));
     }
 
     /***
-     * -1002 AUTH_002
+     *  AUTH_002
      * 회원 가입 시 이미 로그인 된 이메일인 경우 발생 시키는 예외
      */
     @ExceptionHandler(CEmailSignupFailedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected HttpEntity<CommonResult> emailSignupFailedException(HttpServletRequest request, CEmailSignupFailedException e) {
-        return new HttpEntity<>(responseService.getFailResult(
+    protected ResponseEntity<CommonResult> emailSignupFailedException(HttpServletRequest request, CEmailSignupFailedException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseService.getFailResult(
                 (getMessage("emailSignupFailed.code"))
         ));
     }
@@ -89,20 +78,18 @@ public class ExceptionAdvice {
      * 이미 가입된 닉네임
      */
     @ExceptionHandler(CNicknameSignupFailedException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    protected HttpEntity<CommonResult> nicknameSignupFailedException(HttpServletRequest request, CNicknameSignupFailedException e) {
-        return new HttpEntity<>(responseService.getFailResult(
+    protected ResponseEntity<CommonResult> nicknameSignupFailedException(HttpServletRequest request, CNicknameSignupFailedException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseService.getFailResult(
                 (getMessage("nicknameSignupFailed.code"))
         ));
     }
 
     /**
-    잘못된 닉네임 형식 AUTH_005
-    */
+     잘못된 닉네임 형식 AUTH_005
+     */
     @ExceptionHandler(CNicknameSignupFailed2Exception.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    protected HttpEntity<CommonResult> nicknameSignupFailed2Exception(HttpServletRequest request, CNicknameSignupFailed2Exception e) {
-        return new HttpEntity<>(responseService.getFailResult(
+    protected ResponseEntity<CommonResult> nicknameSignupFailed2Exception(HttpServletRequest request, CNicknameSignupFailed2Exception e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseService.getFailResult(
                 (getMessage("wrongNickNameFailed.code"))
         ));
     }
@@ -112,25 +99,44 @@ public class ExceptionAdvice {
      * 기 가입자 에러
      */
     @ExceptionHandler(CUserExistException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    protected HttpEntity<CommonResult> existUserException(HttpServletRequest request, CUserExistException e) {
-        return new HttpEntity<>(responseService.getFailResult(
+    protected ResponseEntity<CommonResult> existUserException(HttpServletRequest request, CUserExistException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseService.getFailResult(
                 (getMessage("userExistException.code"))
         ));
     }
 
 
+    /**
+     * AUTH_008
+     * 액세스 토큰 만료시 발생하는 에러
+     */
+    @ExceptionHandler(CLogoutTokenException.class)
+    protected ResponseEntity<CommonResult> logoutAccessTokenException(HttpServletRequest request, CLogoutTokenException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseService.getFailResult(
+                (getMessage("accessTokenInValid.code"))
+        ));
+    }
 
+
+    /**
+     * AUTH_009
+     * refresh token 에러시 발생 시키는 에러
+     */
+    @ExceptionHandler(CRefreshTokenException.class)
+    protected ResponseEntity<CommonResult> refreshTokenException(HttpServletRequest request, CRefreshTokenException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseService.getFailResult(
+                (getMessage("refreshTokenInValid.code"))
+        ));
+    }
 
 
     /**
      * -1003
      * 전달한 Jwt 이 정상적이지 않은 경우 발생 시키는 예외
      */
-    @ExceptionHandler(capstone.be.global.advice.exception.CAuthenticationEntryPointException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected HttpEntity<CommonResult> authenticationEntrypointException(HttpServletRequest request, CAuthenticationEntryPointException e) {
-        return new HttpEntity<>(responseService.getFailResult(
+    @ExceptionHandler(CAuthenticationEntryPointException.class)
+    protected ResponseEntity<CommonResult> authenticationEntrypointException(HttpServletRequest request, CAuthenticationEntryPointException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseService.getFailResult(
                 (getMessage("authenticationEntrypoint.code"))
         ));
     }
@@ -139,37 +145,13 @@ public class ExceptionAdvice {
      * -1004
      * 권한이 없는 리소스를 요청한 경우 발생 시키는 예외
      */
-    @ExceptionHandler(capstone.be.global.advice.exception.CAccessDeniedException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected HttpEntity<CommonResult> accessDeniedException(HttpServletRequest request, CAccessDeniedException e) {
-        return new HttpEntity<>(responseService.getFailResult(
+    @ExceptionHandler(CAccessDeniedException.class)
+    protected ResponseEntity<CommonResult> accessDeniedException(HttpServletRequest request, CAccessDeniedException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseService.getFailResult(
                 (getMessage("accessDenied.code"))
         ));
     }
 
-    /**
-     * 009
-     * refresh token 에러시 발생 시키는 에러
-     */
-    @ExceptionHandler(CRefreshTokenException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected HttpEntity<CommonResult> refreshTokenException(HttpServletRequest request, CRefreshTokenException e) {
-        return new HttpEntity<>(responseService.getFailResult(
-                (getMessage("refreshTokenInValid.code"))
-        ));
-    }
-
-    /**
-     * 008
-     * 액세스 토큰 만료시 발생하는 에러
-     */
-    @ExceptionHandler(CLogoutTokenException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected HttpEntity<CommonResult> logoutAccessTokenException(HttpServletRequest request, CLogoutTokenException e) {
-        return new HttpEntity<>(responseService.getFailResult(
-                (getMessage("accessTokenInValid.code"))
-        ));
-    }
 
 
     private String getMessage(String code) {
