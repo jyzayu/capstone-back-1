@@ -1,4 +1,4 @@
-package capstone.be.global.config;
+package capstone.be.global.config.security;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;

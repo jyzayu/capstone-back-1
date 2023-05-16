@@ -1,4 +1,4 @@
-package capstone.be.global.advice.exception;
+package capstone.be.global.advice.exception.security;
 
 public class CNicknameSignupFailed2Exception extends RuntimeException{
     public CNicknameSignupFailed2Exception() {

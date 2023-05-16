@@ -1,4 +1,4 @@
-package capstone.be.global.advice.exception;
+package capstone.be.global.advice.exception.security;
 
 
 public class CUserNotFoundException extends RuntimeException {

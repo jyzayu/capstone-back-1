@@ -1,6 +1,5 @@
-package capstone.be.global.config;
+package capstone.be.global.config.security;
 
-import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.global.jwt.JwtAuthenticationFilter;
 import capstone.be.global.jwt.JwtExceptionFilter;
 import capstone.be.global.jwt.JwtProvider;

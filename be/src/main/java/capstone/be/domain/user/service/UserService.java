@@ -6,7 +6,7 @@ import capstone.be.domain.user.domain.UserPrincipal;
 import capstone.be.domain.user.dto.UserResponseDto;
 import capstone.be.domain.user.dto.request.UserRequestDto;
 import capstone.be.domain.user.repository.UserRepository;
-import capstone.be.global.advice.exception.CUserNotFoundException;
+import capstone.be.global.advice.exception.security.CUserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

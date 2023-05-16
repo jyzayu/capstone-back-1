@@ -56,5 +56,14 @@ class SignControllerTest {
 
     @Test
     void signup() {
+        int answer = Math.round(factorial(30) / (factorial(30 - 2) * factorial(2)));
+        System.out.println(answer);
     }
-}
+
+
+        public int factorial(int n){
+            if(n==0){ return 1;}
+            else {return n * factorial(n-1);}
+        }
+
+    }

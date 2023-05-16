@@ -2,7 +2,7 @@ package capstone.be.domain.user.service;
 
 import capstone.be.domain.user.dto.KakaoProfile;
 import capstone.be.domain.user.dto.RetKakaoOAuth;
-import capstone.be.global.advice.exception.CCommunicationException;
+import capstone.be.global.advice.exception.security.CCommunicationException;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
