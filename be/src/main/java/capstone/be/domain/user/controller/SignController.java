@@ -5,6 +5,7 @@ import capstone.be.domain.user.domain.User;
 import capstone.be.domain.user.dto.KakaoProfile;
 import capstone.be.domain.user.dto.LoginResponseDto;
 import capstone.be.domain.user.repository.UserRepository;
+import capstone.be.domain.user.service.EditUserService;
 import capstone.be.domain.user.service.KakaoService;
 import capstone.be.domain.user.service.SignService;
 import capstone.be.global.advice.exception.security.CEmailSignupFailedException;
@@ -41,6 +42,8 @@ public class SignController {
     private final JwtProvider jwtProvider;
     private final UserRepository userJpaRepo;
     private final RedisTemplate<String, String> redisTemplate;
+
+    private final EditUserService editUserService;
 
 
     @PostMapping("/auth/logout")
@@ -136,5 +139,27 @@ public class SignController {
 
 
         return ResponseEntity.ok(tokenDto);
+    }
+
+    //Todo : 로그아웃 코드가 중복되는데 서비스로 옮겨서 사용할 수 있을까?
+    //회원 탈퇴 -> 로그아웃 후 delete
+    @DeleteMapping("/auth/delete")
+    public ResponseEntity<String> deleteUser(HttpServletRequest request){
+        String accessToken = jwtProvider.resolveToken(request);
+        String userId = jwtProvider.getSubjects(accessToken);
+
+        //로그아웃 선행
+        Long expiration = jwtProvider.getExpiration(accessToken);
+
+        redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+
+        if (redisTemplate.opsForValue().get("RT:" + userId) != null){
+            redisTemplate.delete("RT:" + userId);
+        }
+
+        //회원정보 삭제
+        editUserService.deleteUser(Long.parseLong(userId));
+
+        return ResponseEntity.ok("");
     }
 }

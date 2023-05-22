@@ -2,6 +2,7 @@
 
 package capstone.be.global.advice;
 
+import capstone.be.global.advice.exception.CUserNotFound2Exception;
 import capstone.be.global.advice.exception.security.*;
 import capstone.be.global.dto.response.CommonResult;
 import capstone.be.global.dto.response.ResponseService;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -152,6 +154,17 @@ public class ExceptionAdvice {
         ));
     }
 
+
+    /***
+     * AUTH 010
+     * 유저를 찾을 수 없을 때 발생하는 에러
+     */
+    @ExceptionHandler(CUserNotFound2Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    protected ResponseEntity<CommonResult> userNotFound2Exception(HttpServletRequest request, Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseService.getFailResult(
+                (getMessage("userNotFound2.code"))));
+    }
 
 
     private String getMessage(String code) {
