@@ -62,3 +62,10 @@ noDiaryException:
 pastException:
   code: "DIARY_010"
 
+### AWS ##########################################
+imgServerException:
+  code: "IMAGE_001"
+imgFormatException:
+  code: "IMAGE_002"
+imgSizeException:
+  code: "IMAGE_003"
