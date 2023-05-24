@@ -83,8 +83,6 @@ public class SignController {
         //신규 사용자인 경우 카카오토큰과 true
         if(user.isEmpty()){
             return ResponseEntity.ok(
-                    //Todo: rtk를 null로하면 rtk:null로 갈텐데 controller에서 response type통일하지않나? exception message 보내는식으로?
-                    //Todo: response type?로하면 되나? 언제쓰는거지? generic type같은건가?
                     new LoginResponseDto(kakaoAccessToken, null, true));
         }
         else {
