@@ -1,10 +1,14 @@
 package capstone.be.domain.diary.dto;
 
 import capstone.be.domain.diary.domain.Diary;
+import capstone.be.domain.hashtag.dto.HashtagDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -14,19 +18,21 @@ import lombok.Setter;
 public class DiaryDto{
         String title;
         String weather;
-        String hashtag;
+        Set<HashtagDto> hashtag;
         String mood;
 
 
         public Diary toEntity(){
-                return Diary.of(title, weather, hashtag, mood);
+                return Diary.of(title, weather, mood);
         }
 
-        public static DiaryDto of(String title, String weather, String hashtag, String mood) {
+        public static DiaryDto of(String title, String weather, Set<HashtagDto> hashtag, String mood) {
                 return new DiaryDto(title, weather, hashtag, mood);
         }
 
         public static DiaryDto from(Diary diary){
-                return new DiaryDto(diary.getTitle(), diary.getWeather(), diary.getHashtag(), diary.getMood());
+                return new DiaryDto(diary.getTitle(), diary.getWeather(),
+                        diary.getHashtags().stream().map(HashtagDto::from).collect(Collectors.toUnmodifiableSet()),
+                        diary.getMood());
         }
 }
