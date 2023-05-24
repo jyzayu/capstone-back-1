@@ -1,14 +1,12 @@
 package capstone.be.global.jwt;
 
 import capstone.be.domain.user.service.CustomUserDetailsService;
-import capstone.be.global.advice.exception.CAuthenticationEntryPointException;
-import capstone.be.global.advice.exception.CJwtException;
-import capstone.be.global.advice.exception.CLogoutTokenException;
+import capstone.be.global.advice.exception.security.CAuthenticationEntryPointException;
+import capstone.be.global.advice.exception.security.CJwtException;
+import capstone.be.global.advice.exception.security.CLogoutTokenException;
 import capstone.be.global.dto.jwt.TokenDto;
-import com.google.gson.Gson;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.Base64UrlCodec;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,17 +14,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import javax.security.auth.Subject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.lang.String;
@@ -155,6 +148,9 @@ public class JwtProvider {
             throw new CJwtException();
         } catch (CLogoutTokenException e){
             log.error("로그아웃 토근입니다.");
+            throw new CJwtException();
+        } catch (SignatureException e) {
+            log.error("시그니처 에러");
             throw new CJwtException();
         }
     }

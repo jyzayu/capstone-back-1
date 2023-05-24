@@ -1,4 +1,4 @@
-package capstone.be.global.config;
+package capstone.be.global.config.exception;
 
 
 import net.rakugakibox.util.YamlResourceBundle;

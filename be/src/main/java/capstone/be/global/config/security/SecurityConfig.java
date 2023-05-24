@@ -1,6 +1,5 @@
-package capstone.be.global.config;
+package capstone.be.global.config.security;
 
-import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.global.jwt.JwtAuthenticationFilter;
 import capstone.be.global.jwt.JwtExceptionFilter;
 import capstone.be.global.jwt.JwtProvider;
@@ -70,7 +69,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .mvcMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                        .mvcMatchers(HttpMethod.POST, "/api/**").permitAll()
                         .mvcMatchers(HttpMethod.GET, "/exception/**", "/login/oauth2/code/kakao", "/api/redisTest").permitAll()
                         .anyRequest().authenticated())
 

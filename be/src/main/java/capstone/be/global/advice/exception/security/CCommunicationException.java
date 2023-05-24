@@ -1,4 +1,4 @@
-package capstone.be.global.advice.exception;
+package capstone.be.global.advice.exception.security;
 public class CCommunicationException extends RuntimeException {
     public CCommunicationException() {
         super();
