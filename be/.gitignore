@@ -5,6 +5,14 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+### Querydsl ###
+src/main/generated
+
+### DB ###
+src/main/resources/application-local.yml
+src/main/resources/application-private.yml
+
+
 ### STS ###
 .apt_generated
 .classpath
