@@ -4,6 +4,7 @@ import capstone.be.domain.user.domain.User;
 import capstone.be.domain.user.dto.EmailEditDto;
 import capstone.be.domain.user.dto.NicknameEditDto;
 import capstone.be.domain.user.repository.UserRepository;
+import capstone.be.global.advice.exception.CUserNotFound2Exception;
 import capstone.be.global.advice.exception.security.CEmailSignupFailedException;
 import capstone.be.global.advice.exception.security.CNicknameSignupFailedException;
 import capstone.be.global.advice.exception.security.CUserNotFoundException;
@@ -23,7 +24,7 @@ public class EditUserService {
     //닉네임 변경
     @Transactional
     public NicknameEditDto editNickname(Long userId, String nickname) {
-        User user = userRepository.findById(userId).orElseThrow(CUserNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(CUserNotFound2Exception::new);
 
         Optional<User> otherUser = userRepository.findByNickname(nickname);
 
@@ -43,7 +44,7 @@ public class EditUserService {
     //이메일 변경
     @Transactional
     public EmailEditDto editEmail(Long userId, String email) {
-        User user = userRepository.findById(userId).orElseThrow(CUserNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(CUserNotFound2Exception::new);
 
         Optional<User> otherUser = userRepository.findByEmail(email);
 
@@ -63,7 +64,7 @@ public class EditUserService {
     //회원 탈퇴
     @Transactional
     public void deleteUser(Long userId){
-        User user = userRepository.findById(userId).orElseThrow(CUserNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(CUserNotFound2Exception::new);
         userRepository.delete(user); //유저 정보 삭제
     }
 }
