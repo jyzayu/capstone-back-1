@@ -13,7 +13,7 @@ class DiaryServiceTest {
     @MockBean private  DiaryService diaryService;
     @Test
     void save() {
-        DiaryDto diaryDto = new DiaryDto("title1", "sunny", "tag1", "happy");
+        DiaryDto diaryDto = new DiaryDto("title1", "sunny", "tag1", "happy","{tt:ff}");
     }
 
     @Test
