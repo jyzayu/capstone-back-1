@@ -38,6 +38,8 @@ public class AmazonS3Controller {
         }
 
         String imgUrl = amazonS3Service.upload(multipartFile, "static");
+        //썸네일 사진 생성. 일단 저장만 구현해둠. 블록 나오면 제일 1번째 이미지 블록에 나오는 걸 썸네일로 골라서 저장해야 할 것 같음..
+        String thumbnailUrl = amazonS3Service.uploadThumbnail(multipartFile, "thumbnails", 300, 400);
 
         return imgUrl;
     }

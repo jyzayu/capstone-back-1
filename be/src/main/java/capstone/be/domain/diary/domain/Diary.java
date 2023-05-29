@@ -2,7 +2,11 @@ package capstone.be.domain.diary.domain;
 
 import capstone.be.domain.hashtag.domain.Hashtag;
 import capstone.be.global.entity.AuditingFields;
+
+import io.hypersistence.utils.hibernate.type.json.JsonStringType;
+
 import lombok.Getter;
+
 import lombok.Setter;
 import lombok.ToString;
 
@@ -10,14 +14,19 @@ import javax.persistence.*;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
 import javax.persistence.*;
 import java.util.List;
+
 
 
 @Getter
 @ToString(callSuper = true)
 @Entity
+@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class Diary extends AuditingFields {
 
     @Id
@@ -39,11 +48,14 @@ public class Diary extends AuditingFields {
     )
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Hashtag> hashtags = new LinkedHashSet<>();
+
     @Setter
     private String font;
 
+
     @Setter
     private String mood;
+
 
 
     @Type(type="json")
@@ -52,11 +64,11 @@ public class Diary extends AuditingFields {
     private List<BProperties> blocks;
 
 
-    //Todo: Block 구현 Entity로 구현하면 될듯 
 
 
 
     public Diary() {
+
 
     }
 
@@ -84,5 +96,6 @@ public class Diary extends AuditingFields {
     public void clearHashtags() {
         this.getHashtags().clear();
     }
+
 
 }

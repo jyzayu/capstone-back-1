@@ -10,7 +10,9 @@ import lombok.Setter;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import java.util.List;
+
 
 
 @Getter
@@ -29,7 +31,6 @@ public class DiaryDto{
         public Diary toEntity(){
                 return Diary.of(title, weather, mood, font, blocks);
         }
-
 
 
         public static DiaryDto from(Diary diary){

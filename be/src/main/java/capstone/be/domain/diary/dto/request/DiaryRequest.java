@@ -24,6 +24,7 @@ public class DiaryRequest{
     @JsonProperty("hashtag")
     Set<String> hashtagNames;
     String mood;
+
     String font;
     List<BProperties> blocks;
 
