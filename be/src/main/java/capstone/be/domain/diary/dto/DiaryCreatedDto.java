@@ -25,8 +25,8 @@ public record DiaryCreatedDto(
 
         String font,
 
-        List<BProperties> blocks
-        LocalDateTime date;
+        List<BProperties> blocks,
+        LocalDateTime date
 ){
 
     public Diary toEntity(){
