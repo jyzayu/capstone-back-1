@@ -2,9 +2,9 @@ package capstone.be.domain.diary.dto;
 
 import capstone.be.domain.diary.domain.BProperties;
 import capstone.be.domain.diary.domain.Diary;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import java.time.LocalDateTime;
 import capstone.be.domain.hashtag.dto.HashtagDto;
 
 
@@ -23,16 +23,21 @@ public record DiaryCreatedDto(
 
         String font,
 
-        List<BProperties> blocks
-        LocalDateTime date;
-){
+
+        List<BProperties> blocks,
+        LocalDateTime date
+
+
+
 
     public Diary toEntity(){
         return Diary.of(title, weather, mood, font, blocks);
+
     }
 
     @JsonCreator
     public static DiaryCreatedDto from(Diary diary){
+
         return new DiaryCreatedDto(diary.getTitle(), diary.getWeather(),
                 diary.getHashtags().stream().map(HashtagDto::from).collect(Collectors.toUnmodifiableSet()),
                 diary.getMood(),

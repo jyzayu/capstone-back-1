@@ -54,12 +54,22 @@ public class Diary extends AuditingFields {
     @Setter
     private String mood;
 
+    @Setter
+    private String thumbnail;
 
 
     @Type(type="json")
     @Column(columnDefinition = "LONGTEXT")
     @Setter
     private List<BProperties> blocks;
+
+
+
+    @Type(type="json")
+    @Column(columnDefinition = "LONGTEXT")
+    @Setter
+    private List<BProperties> blocks;
+
 
 
 

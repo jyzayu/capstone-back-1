@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -76,13 +77,17 @@ public class AmazonS3Service {
 
     }
 
-    public String uploadThumbnail(MultipartFile multipartFile, String dirName, int width, int height) throws IOException {
+
+    //원본 이미지 링크를 받아서 썸네일을 만들도록 함.
+    public String uploadThumbnail(String imageUrl, String dirName, int width, int height) throws IOException {
         // 원본 이미지를 로컬에 저장
-        File originalFile = convert(multipartFile).orElseThrow(() -> new IllegalArgumentException("파일 전환 실패"));
+        // S3에서 이미지 다운로드
+        URL url = new URL(imageUrl);
+        BufferedImage image = ImageIO.read(url);
 
         // 썸네일 이미지 생성
-        BufferedImage thumbnailImage = Thumbnails.of(originalFile)
-                .size(width, height)
+        BufferedImage thumbnailImage = Thumbnails.of(image)
+                .forceSize(width, height)
                 .asBufferedImage();
 
         // 썸네일 이미지를 임시 파일로 저장
@@ -93,7 +98,6 @@ public class AmazonS3Service {
         String thumbnailUrl = upload(thumbnailFile, dirName);
 
         // 임시 파일 삭제
-        removeNewFile(originalFile);
         removeNewFile(thumbnailFile);
 
         return thumbnailUrl;
