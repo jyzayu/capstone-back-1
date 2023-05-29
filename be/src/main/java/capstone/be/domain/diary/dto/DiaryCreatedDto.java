@@ -30,12 +30,6 @@ public record DiaryCreatedDto(
         LocalDateTime date
 ){
 
-        List<BProperties> blocks,
-        LocalDateTime date
-
-
-
-
     public Diary toEntity(){
         return Diary.of(title, weather, mood, font, blocks);
 
