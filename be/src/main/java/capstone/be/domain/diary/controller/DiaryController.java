@@ -34,7 +34,7 @@ public class DiaryController {
 
 
     public ResponseEntity<DiaryCreateResponse> createDiary(@RequestBody DiaryRequest diaryRequest) throws IOException{   // id 만 반환하는 응답
-        return ResponseEntity.status(HttpStatus.CREATED).body(diaryService.saveDiary(diaryRequest.toDto()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(diaryService.save(diaryRequest.toDto()));
     }
 
     @GetMapping("/{diaryId}")
