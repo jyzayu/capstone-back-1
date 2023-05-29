@@ -2,7 +2,11 @@ package capstone.be.domain.diary.domain;
 
 import capstone.be.domain.hashtag.domain.Hashtag;
 import capstone.be.global.entity.AuditingFields;
+
+import io.hypersistence.utils.hibernate.type.json.JsonStringType;
+
 import lombok.Getter;
+
 import lombok.Setter;
 import lombok.ToString;
 
@@ -20,6 +24,7 @@ import java.util.List;
 @Getter
 @ToString(callSuper = true)
 @Entity
+@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class Diary extends AuditingFields {
 
     @Id
