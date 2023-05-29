@@ -1,5 +1,6 @@
 package capstone.be.domain.diary.service;
 
+import capstone.be.domain.diary.domain.BProperties;
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryDto;
@@ -10,6 +11,8 @@ import capstone.be.domain.diary.repository.DiaryRepository;
 import capstone.be.domain.hashtag.domain.Hashtag;
 import capstone.be.domain.hashtag.service.HashtagService;
 import capstone.be.global.advice.exception.diary.CDiaryNotFoundException;
+import capstone.be.s3.AmazonS3Service;
+import io.lettuce.core.dynamic.annotation.Param;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,15 +36,22 @@ import java.util.stream.Collectors;
 @Transactional
 public class DiaryService {
     private final DiaryRepository diaryRepository;
-    private final EntityManager entityManager;
     private final HashtagService hashtagService;
+    private final EntityManager entityManager;
+    private final AmazonS3Service amazonS3Service;
 
-    public DiaryCreateResponse saveDiary(DiaryDto diaryDto){
+    public DiaryCreateResponse save(DiaryDto diaryDto) throws IOException {
         Diary diary = diaryDto.toEntity();
-        diary.addHashtags(diaryDto.getHashtag().stream()
-                .map(HashtagDto::toEntity)
-                .collect(Collectors.toUnmodifiableSet()));
-
+        String OriginUrl;
+        Optional<BProperties> bProperties = diaryDto.getBlocks().stream().filter(x -> x.getType().equals("img")).findFirst();
+        if(bProperties.isPresent()) {//썸네일 이미지가 있으면
+            OriginUrl = bProperties.get().getData().getLink();
+        }else{//없을 때 임시 오리지널 링크
+            OriginUrl = "https://ljgs3test.s3.ap-northeast-2.amazonaws.com/static/ba28dd93-8d19-4b1e-b01f-04da1f75864dflower-7993995_640.jpg";
+        }
+        //썸네일 S3에 저장
+        String thumbnailUrl = amazonS3Service.uploadThumbnail(OriginUrl, "thumbnails", 300, 400);
+        diary.setThumbnail(thumbnailUrl);
 
         return new DiaryCreateResponse(diaryRepository.save(diary).getId());
     }
@@ -115,6 +128,7 @@ public class DiaryService {
 
         return new DiaryMoodTotalResponse(best, good, normal, bad, worst);
     }
+
 }
 
 

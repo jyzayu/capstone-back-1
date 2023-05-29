@@ -16,6 +16,8 @@ import java.time.format.DateTimeFormatter;
 public class DiaryMoodSearchResponse {
     private Long id;
     private String title;
+    private String thumbnail;
+
     private String createAt;
 
     public static DiaryMoodSearchResponse from(final Diary diary) {
@@ -25,6 +27,7 @@ public class DiaryMoodSearchResponse {
         return new DiaryMoodSearchResponse(
                 diary.getId(),
                 diary.getTitle(),
+                diary.getThumbnail(),
                 formattedDate
         );
     }
