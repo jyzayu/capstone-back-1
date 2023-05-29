@@ -42,15 +42,14 @@ public class DiaryService {
 
     public DiaryCreateResponse save(DiaryDto diaryDto) throws IOException {
         Diary diary = diaryDto.toEntity();
-        String OriginUrl;
+        String thumbnailUrl;
         Optional<BProperties> bProperties = diaryDto.getBlocks().stream().filter(x -> x.getType().equals("img")).findFirst();
         if(bProperties.isPresent()) {//썸네일 이미지가 있으면
-            OriginUrl = bProperties.get().getData().getLink();
-        }else{//없을 때 임시 오리지널 링크
-            OriginUrl = "https://ljgs3test.s3.ap-northeast-2.amazonaws.com/static/ba28dd93-8d19-4b1e-b01f-04da1f75864dflower-7993995_640.jpg";
+            String OriginUrl = bProperties.get().getData().getLink();
+            thumbnailUrl = amazonS3Service.uploadThumbnail(OriginUrl, "thumbnails", 300, 400);
+        }else{//없을 때 임시 썸네일 링크
+            thumbnailUrl = "https://ljgs3test.s3.ap-northeast-2.amazonaws.com/default/a2532aff-5ce6-4165-b433-479d52cbd16912402fec-be9c-4306-a61f-677c5dd291be_thumbnail.jpg";
         }
-        //썸네일 S3에 저장
-        String thumbnailUrl = amazonS3Service.uploadThumbnail(OriginUrl, "thumbnails", 300, 400);
         diary.setThumbnail(thumbnailUrl);
 
         return new DiaryCreateResponse(diaryRepository.save(diary).getId());

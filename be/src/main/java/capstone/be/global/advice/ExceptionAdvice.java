@@ -87,6 +87,17 @@ public class ExceptionAdvice {
     }
 
     /**
+     잘못된 이메일 형식 AUTH_004
+     */
+    @ExceptionHandler(CWrongEmailFailedException.class)
+    protected ResponseEntity<CommonResult> wrongEmailFailedException(HttpServletRequest request, CWrongEmailFailedException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseService.getFailResult(
+                (getMessage("wrongEmailFailed.code"))
+        ));
+    }
+
+
+    /**
      잘못된 닉네임 형식 AUTH_005
      */
     @ExceptionHandler(CNicknameSignupFailed2Exception.class)
