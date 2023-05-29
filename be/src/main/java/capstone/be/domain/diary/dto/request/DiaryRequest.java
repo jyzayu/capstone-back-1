@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class DiaryRequest{
     @JsonProperty("hashtag")
     Set<String> hashtagNames;
     String mood;
+
     String font;
     List<BProperties> blocks;
 

@@ -10,9 +10,11 @@ import javax.persistence.*;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import java.util.List;
+
 
 
 @Getter
@@ -39,11 +41,14 @@ public class Diary extends AuditingFields {
     )
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Hashtag> hashtags = new LinkedHashSet<>();
+
     @Setter
     private String font;
 
+
     @Setter
     private String mood;
+
 
 
     @Type(type="json")
@@ -52,11 +57,11 @@ public class Diary extends AuditingFields {
     private List<BProperties> blocks;
 
 
-    //Todo: Block 구현 Entity로 구현하면 될듯 
 
 
 
     public Diary() {
+
 
     }
 
@@ -84,5 +89,6 @@ public class Diary extends AuditingFields {
     public void clearHashtags() {
         this.getHashtags().clear();
     }
+
 
 }

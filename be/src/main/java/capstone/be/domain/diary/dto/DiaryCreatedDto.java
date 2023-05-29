@@ -7,7 +7,9 @@ import capstone.be.domain.hashtag.dto.HashtagDto;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import java.util.List;
+
 
 public record DiaryCreatedDto(
         String title,
@@ -18,6 +20,7 @@ public record DiaryCreatedDto(
         String font,
 
         List<BProperties> blocks
+        LocalDateTime date;
 ){
 
     public Diary toEntity(){
@@ -29,7 +32,9 @@ public record DiaryCreatedDto(
                 diary.getHashtags().stream().map(HashtagDto::from).collect(Collectors.toUnmodifiableSet()),
                 diary.getMood(),
                 diary.getFont(),
-                diary.getBlocks());
+                diary.getBlocks(),
+                diary.getCreatedAt());
+
     }
 
     }
