@@ -86,8 +86,19 @@ public class AmazonS3Service {
         BufferedImage image = ImageIO.read(url);
 
         // 썸네일 이미지 생성
+        int originalWidth = image.getWidth();
+        int originalHeight = image.getHeight();
+
+        //원본 비율은 유지하되, 리사이즈 크기보다 작아서는 안됨.
+        double widthRatio = (double) width / originalWidth;
+        double heightRatio = (double) height / originalHeight;
+        double scaleFactor = Math.max(widthRatio, heightRatio);
+
+        int resizedWidth = (int) (originalWidth * scaleFactor);
+        int resizedHeight = (int) (originalHeight * scaleFactor);
+
         BufferedImage thumbnailImage = Thumbnails.of(image)
-                .forceSize(width, height)
+                .size(resizedWidth, resizedHeight)
                 .asBufferedImage();
 
         // 썸네일 이미지를 임시 파일로 저장

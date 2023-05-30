@@ -5,9 +5,7 @@ import capstone.be.domain.user.dto.EmailEditDto;
 import capstone.be.domain.user.dto.NicknameEditDto;
 import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.global.advice.exception.CUserNotFound2Exception;
-import capstone.be.global.advice.exception.security.CEmailSignupFailedException;
-import capstone.be.global.advice.exception.security.CNicknameSignupFailedException;
-import capstone.be.global.advice.exception.security.CUserNotFoundException;
+import capstone.be.global.advice.exception.security.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,7 +32,10 @@ public class EditUserService {
             throw new CNicknameSignupFailedException();
         }
 
-        //닉네임 형식 오류(닉네임 형식 추가되면 그때 구현하기로)
+        //닉네임 형식 오류(20자 초과 시 예외 처리)
+        if (nickname.length() > 20) {
+            throw new CNicknameSignupFailed2Exception();
+        }
 
         userRepository.save(user);//트랜잭션 있어서 없어도 저장되긴 함
 
@@ -54,7 +55,10 @@ public class EditUserService {
             throw new CEmailSignupFailedException();
         }
 
-        //이메일 형식 오류(이메일 형식 추가되면 그때 구현하기로)
+        //이메일 형식 오류(이메일에 @가 없는 경우 예외 처리)
+        if (!email.contains("@")) {
+            throw new CWrongEmailFailedException();
+        }
 
         userRepository.save(user);//트랜잭션 있어서 없어도 저장되긴 함
 
