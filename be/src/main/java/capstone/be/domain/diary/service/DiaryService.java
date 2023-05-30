@@ -70,7 +70,10 @@ public class DiaryService {
 
             if (dto.getTitle() != null) { diary.setTitle(dto.getTitle()); }
             if (dto.getWeather() != null) { diary.setWeather(dto.getWeather()); }
+            if (dto.getFont() != null) { diary.setFont(dto.getFont()); }
             if (dto.getMood() != null) { diary.setMood(dto.getMood()); }
+            if (dto.getBlocks() != null) { diary.setBlocks(dto.getBlocks()); }
+            if (dto.getThumbnail() != null) { diary.setThumbnail(dto.getThumbnail()); }
 
             Set<Long> hashtagIds = diary.getHashtags().stream()
                     .map(Hashtag::getId)
