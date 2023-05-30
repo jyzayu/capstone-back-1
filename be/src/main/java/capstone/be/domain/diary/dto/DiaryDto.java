@@ -25,11 +25,12 @@ public class DiaryDto{
         Set<HashtagDto> hashtag;
         String mood;
         String font;
+        String thumbnail;
         List<BProperties> blocks;
 
 
         public Diary toEntity(){
-                return Diary.of(title, weather, mood, font, blocks);
+                return Diary.of(title, weather, mood, font, thumbnail, blocks);
         }
 
 
@@ -38,11 +39,12 @@ public class DiaryDto{
                         diary.getHashtags().stream().map(HashtagDto::from).collect(Collectors.toUnmodifiableSet()),
                         diary.getMood(),
                         diary.getFont(),
+                        diary.getThumbnail(),
                         diary.getBlocks());
         }
 
-        public static DiaryDto of(String title, String weather, Set<HashtagDto> hashtag, String mood,String font,List<BProperties> blocks) {
-                return new DiaryDto(title, weather, hashtag, mood,font ,blocks);
+        public static DiaryDto of(String title, String weather, Set<HashtagDto> hashtag, String mood,String font, String thumbnail, List<BProperties> blocks) {
+                return new DiaryDto(title, weather, hashtag, mood, font, thumbnail, blocks);
         }
 
 

@@ -26,13 +26,14 @@ public record DiaryCreatedDto(
         String mood,
 
         String font,
+        String thumbnail,
 
         List<BProperties> blocks,
         LocalDateTime date
 ){
 
     public Diary toEntity(){
-        return Diary.of(title, weather, mood, font, blocks);
+        return Diary.of(title, weather, mood, font, thumbnail, blocks);
 
     }
 
@@ -43,6 +44,7 @@ public record DiaryCreatedDto(
                 diary.getHashtags().stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet()),
                 diary.getMood(),
                 diary.getFont(),
+                diary.getThumbnail(),
                 diary.getBlocks(),
                 diary.getCreatedAt());
 

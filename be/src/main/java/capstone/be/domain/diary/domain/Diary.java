@@ -67,10 +67,6 @@ public class Diary extends AuditingFields {
 
 
 
-    @Type(type="json")
-    @Column(columnDefinition = "LONGTEXT")
-    @Setter
-    private List<BProperties> blocks;
 
 
 
@@ -82,17 +78,18 @@ public class Diary extends AuditingFields {
 
     }
 
-    private Diary(String title, String weather, String mood, String font, List<BProperties> blocks) {
+    private Diary(String title, String weather, String mood, String font, String thumbnail, List<BProperties> blocks) {
         this.title = title;
         this.weather = weather;
         this.mood = mood;
         this.font=font;
+        this.thumbnail=thumbnail;
         this.blocks =blocks;
 
     }
 
-    public static Diary of(String title, String weather, String mood, String font, List<BProperties> blocks){
-        return new Diary(title, weather, mood, font, blocks);
+    public static Diary of(String title, String weather, String mood, String font,String thumbnail, List<BProperties> blocks){
+        return new Diary(title, weather, mood, font, thumbnail, blocks);
     }
 
     public void addHashtag(Hashtag hashtag) {
