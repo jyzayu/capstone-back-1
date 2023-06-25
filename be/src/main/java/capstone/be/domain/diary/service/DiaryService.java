@@ -42,6 +42,20 @@ public class DiaryService {
 
     public DiaryCreateResponse save(DiaryDto diaryDto) throws IOException {
         Diary diary = diaryDto.toEntity();
+        Set<String> hashtagNamesInContent = diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet());
+        Set<Hashtag> hashtags = hashtagService.findHashtagsByNames(diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet()));
+        Set<String> existingHashtagNames = hashtags.stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet());
+
+        hashtagNamesInContent.forEach(newHashtagName -> {
+            if (!existingHashtagNames.contains(newHashtagName)) {
+                hashtags.add(Hashtag.of(newHashtagName));
+            }
+        });
+
+        // Todo : renewHashtags 메서드 및 패스트 캠퍼스 확인하기
+        diaryDto.getHashtag().stream().map(HashtagDto::toEntity).collect(Collectors.toUnmodifiableSet());
+        diary.addHashtags(hashtags);
+
         String thumbnailUrl;
         Optional<BProperties> bProperties = diaryDto.getBlocks().stream().filter(x -> x.getType().equals("img")).findFirst();
         if(bProperties.isPresent()) {//썸네일 이미지가 있으면
