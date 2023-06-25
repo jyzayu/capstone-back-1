@@ -40,7 +40,7 @@ public class Diary extends AuditingFields {
     @Setter
     private String weather;
 
-    @ToString.Exclude
+
     @JoinTable(
             name = "diary_hashtag",
             joinColumns = @JoinColumn(name = "diaryId"),
@@ -65,14 +65,6 @@ public class Diary extends AuditingFields {
     @Setter
     private List<BProperties> blocks;
 
-
-
-
-
-
-
-
-
     public Diary() {
 
 
@@ -87,6 +79,11 @@ public class Diary extends AuditingFields {
         this.blocks =blocks;
 
     }
+
+    public static Diary of(String title, String weather, String mood, String font, List<BProperties> blocks){
+        return new Diary(title, weather, mood, font, null, blocks);
+    }
+
 
     public static Diary of(String title, String weather, String mood, String font,String thumbnail, List<BProperties> blocks){
         return new Diary(title, weather, mood, font, thumbnail, blocks);

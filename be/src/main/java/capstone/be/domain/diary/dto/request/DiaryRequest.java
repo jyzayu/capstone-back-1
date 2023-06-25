@@ -26,18 +26,17 @@ public class DiaryRequest{
     String mood;
 
     String font;
-    String thumbnail;
     List<BProperties> blocks;
 
-    public static DiaryRequest of(String title, String weather, Set<String> hashtagNames, String mood, String font, String thumbnail, List<BProperties> blocks) {
-        return new DiaryRequest(title, weather, hashtagNames, mood, font, thumbnail , blocks);
+    public static DiaryRequest of(String title, String weather, Set<String> hashtagNames, String mood, String font, List<BProperties> blocks) {
+        return new DiaryRequest(title, weather, hashtagNames, mood, font, blocks);
     }
 
     public DiaryDto toDto(){
-        return DiaryDto.of(title, weather, hashtagNames.stream().map(HashtagDto::of).collect(Collectors.toUnmodifiableSet())
+        return DiaryDto.of(title, weather,
+                hashtagNames.stream().map(HashtagDto::of).collect(Collectors.toUnmodifiableSet())
                 ,mood
                 ,font
-                ,thumbnail
                 ,blocks
         );
     }
