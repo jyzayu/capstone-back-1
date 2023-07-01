@@ -72,7 +72,7 @@ public class SecurityConfig {
                         .mvcMatchers(HttpMethod.POST, "/api/**").permitAll()
                         .mvcMatchers(HttpMethod.GET, "/exception/**", "/login/oauth2/code/kakao").permitAll()
 
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
 
                 .exceptionHandling()
                 .authenticationEntryPoint(customAuthenticationEntryPoint)

@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,10 +33,12 @@ public class DiaryRequest{
     }
 
     public DiaryDto toDto(){
-        return DiaryDto.of(title, weather, hashtagNames.stream().map(HashtagDto::of).collect(Collectors.toUnmodifiableSet())
-        ,mood
-        ,font
-        ,blocks);
+        return DiaryDto.of(title, weather,
+                hashtagNames.stream().map(HashtagDto::of).collect(Collectors.toUnmodifiableSet())
+                ,mood
+                ,font
+                ,blocks
+        );
     }
 
 

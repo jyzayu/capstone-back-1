@@ -3,10 +3,7 @@ package capstone.be.domain.diary.dto;
 import capstone.be.domain.diary.domain.BProperties;
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.hashtag.dto.HashtagDto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.List;
 
 
-
+@ToString
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,11 +22,12 @@ public class DiaryDto{
         Set<HashtagDto> hashtag;
         String mood;
         String font;
+        String thumbnail;
         List<BProperties> blocks;
 
 
         public Diary toEntity(){
-                return Diary.of(title, weather, mood, font, blocks);
+                return Diary.of(title, weather, mood, font, thumbnail, blocks);
         }
 
 
@@ -38,11 +36,16 @@ public class DiaryDto{
                         diary.getHashtags().stream().map(HashtagDto::from).collect(Collectors.toUnmodifiableSet()),
                         diary.getMood(),
                         diary.getFont(),
+                        diary.getThumbnail(),
                         diary.getBlocks());
         }
 
-        public static DiaryDto of(String title, String weather, Set<HashtagDto> hashtag, String mood,String font,List<BProperties> blocks) {
-                return new DiaryDto(title, weather, hashtag, mood,font ,blocks);
+        public static DiaryDto of(String title, String weather, Set<HashtagDto> hashtag, String mood,String font, List<BProperties> blocks) {
+                return new DiaryDto(title, weather, hashtag, mood, font, null, blocks);
+        }
+
+        public static DiaryDto of(String title, String weather, Set<HashtagDto> hashtag, String mood,String font, String thumbnail, List<BProperties> blocks) {
+                return new DiaryDto(title, weather, hashtag, mood, font, thumbnail, blocks);
         }
 
 
