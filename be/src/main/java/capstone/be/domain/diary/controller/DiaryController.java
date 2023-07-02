@@ -5,12 +5,14 @@ package capstone.be.domain.diary.controller;
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryDto;
+import capstone.be.domain.diary.dto.DiaryRandomDto;
 import capstone.be.domain.diary.dto.request.DiaryRequest;
 import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
 import capstone.be.domain.diary.dto.response.DiaryMoodSearchResponse;
 import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
 import capstone.be.domain.diary.repository.DiaryRepository;
 import capstone.be.domain.diary.service.DiaryService;
+import capstone.be.domain.diary.service.MainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class DiaryController {
 
     private final DiaryService diaryService;
+    private final MainService mainService;
 
     @PostMapping
 
@@ -77,4 +80,10 @@ public class DiaryController {
         DiaryMoodTotalResponse response = diaryService.getMoodTotal();
         return response;
     }
+
+    @GetMapping("/random")
+    public DiaryRandomDto getRandomDiary(){
+        return mainService.getRandomDiary();
+    }
+
 }

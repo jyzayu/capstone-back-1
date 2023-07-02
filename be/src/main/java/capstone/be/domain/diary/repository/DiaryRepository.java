@@ -1,6 +1,7 @@
 package capstone.be.domain.diary.repository;
 
 import capstone.be.domain.diary.domain.Diary;
+import capstone.be.domain.diary.dto.DiaryRandomDto;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,10 @@ import java.util.List;
 
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
     Page<Diary> findByMood(String mood, Pageable pageable);
+
+//    @Query(nativeQuery = true, value = "SELECT d.title, d.weather, d.mood FROM diary d ORDER BY RAND() LIMIT 1")
+//    List<DiaryRandomDto> findRandom();
+
 
 
 
