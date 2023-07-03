@@ -20,7 +20,6 @@ userExistException:
   code: "AUTH_006"
 accessTokenInValid:
   code: "AUTH_008"
-<<<<<<< HEAD
   msg: "액세스 토큰이 잘못되었습니다."
 
 
@@ -29,10 +28,10 @@ userNotFound2:
   msg: "존재하지 않는 유저입니다."
 
 
-=======
+
 refreshTokenInValid:
   code: "AUTH_009"
->>>>>>> dd8928c131b06dc68f0862a3afe320a4941253f7
+
 authenticationEntrypoint:
   code: "-1003"
   msg: "해당 리소스에 접근하기 위한 권한이 없습니다."
