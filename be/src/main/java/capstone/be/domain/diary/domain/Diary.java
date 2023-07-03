@@ -16,6 +16,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class Diary extends AuditingFields {
     @Setter
     private String weather;
 
-    @ToString.Exclude
+
     @JoinTable(
             name = "diary_hashtag",
             joinColumns = @JoinColumn(name = "diaryId"),
@@ -63,34 +65,28 @@ public class Diary extends AuditingFields {
     @Setter
     private List<BProperties> blocks;
 
-
-
-    @Type(type="json")
-    @Column(columnDefinition = "LONGTEXT")
-    @Setter
-    private List<BProperties> blocks;
-
-
-
-
-
-
     public Diary() {
 
 
     }
 
-    private Diary(String title, String weather, String mood, String font, List<BProperties> blocks) {
+    private Diary(String title, String weather, String mood, String font, String thumbnail, List<BProperties> blocks) {
         this.title = title;
         this.weather = weather;
         this.mood = mood;
         this.font=font;
+        this.thumbnail=thumbnail;
         this.blocks =blocks;
 
     }
 
     public static Diary of(String title, String weather, String mood, String font, List<BProperties> blocks){
-        return new Diary(title, weather, mood, font, blocks);
+        return new Diary(title, weather, mood, font, null, blocks);
+    }
+
+
+    public static Diary of(String title, String weather, String mood, String font,String thumbnail, List<BProperties> blocks){
+        return new Diary(title, weather, mood, font, thumbnail, blocks);
     }
 
     public void addHashtag(Hashtag hashtag) {
