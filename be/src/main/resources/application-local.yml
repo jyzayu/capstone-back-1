@@ -16,7 +16,7 @@ spring:
     basename: i18n/exception
     encoding: UTF-8
   jpa:
-    hibernate.ddl-auto: update
+    hibernate.ddl-auto: create-drop
     properties.hibernate:
       format_sql: true
     show-sql: true

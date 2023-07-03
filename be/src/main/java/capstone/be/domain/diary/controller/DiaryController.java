@@ -82,8 +82,13 @@ public class DiaryController {
     }
 
     @GetMapping("/random")
-    public DiaryRandomDto getRandomDiary(){
-        return mainService.getRandomDiary();
+    public ResponseEntity<DiaryRandomDto> getRandomDiary(){
+        DiaryRandomDto randomDiary = mainService.getRandomDiary();
+        if(randomDiary != null) {
+            return ResponseEntity.ok(randomDiary);
+        }else{
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

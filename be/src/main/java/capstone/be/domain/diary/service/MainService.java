@@ -6,6 +6,7 @@ import capstone.be.domain.diary.repository.DiaryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +20,17 @@ public class MainService {
 
     public DiaryRandomDto getRandomDiary(){
 //        List<DiaryRandomDto> dto = diaryRepository.findRandom();
-        Long qty = diaryRepository.count();
-        int idx = (int)(Math.random() * qty);
-        Page<Diary> questionPage = diaryRepository.findAll(PageRequest.of(idx, 1));
+        Long cnt = diaryRepository.count();
+        int idx = (int) (Math.random() * cnt);
+
+//        System.out.println(idx);
         Diary diary = null;
-        if (questionPage.hasContent()) {
-            diary = questionPage.getContent().get(0);
+
+        Page<Diary> diaryPage = diaryRepository.findAll(PageRequest.of(idx, 1));
+        if(diaryPage.hasContent()){
+            diary = diaryPage.getContent().get(0);
         }
+
         DiaryRandomDto dto1 = DiaryRandomDto.from(diary);
         return dto1;
     }
