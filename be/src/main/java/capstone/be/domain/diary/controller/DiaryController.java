@@ -2,6 +2,7 @@
 
 package capstone.be.domain.diary.controller;
 
+import capstone.be.domain.diary.domain.BProperties;
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryDto;
@@ -11,6 +12,7 @@ import capstone.be.domain.diary.dto.response.DiaryMoodSearchResponse;
 import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
 import capstone.be.domain.diary.repository.DiaryRepository;
 import capstone.be.domain.diary.service.DiaryService;
+import capstone.be.global.advice.exception.diary.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,6 +37,48 @@ public class DiaryController {
 
 
     public ResponseEntity<DiaryCreateResponse> createDiary(@RequestBody DiaryRequest diaryRequest) throws IOException{   // id 만 반환하는 응답
+        Optional<BProperties> levelConfirm = diaryRequest.getBlocks().stream().filter(x -> x.getData().getLevel()>=4).findAny();
+
+        Optional<BProperties> sortConfirm = diaryRequest.getBlocks().stream().filter(x -> !x.getData().getAlign().equals("left")).findAny();
+
+        Optional<BProperties> blockTypeConfirm = diaryRequest.getBlocks().stream()
+                .filter(x ->  !x.getType().equals("text")
+                        && !x.getType().equals("img")
+                        && !x.getType().equals("heading")).findAny();
+        Optional<BProperties> imgLinkConfirm = diaryRequest.getBlocks().stream().filter(x -> x.getData().getLink() !=null ).findAny();
+
+
+        //DIARY_008
+        if(!imgLinkConfirm.isPresent()) {
+            throw new CDiaryNotFoundLinkException();
+        }
+
+        //DIARY_007
+        if(levelConfirm.isPresent()){
+            throw new CDiaryOverLevelException();
+        }
+
+        //DIARY_004
+        if(sortConfirm.isPresent()){
+            throw new CDiaryInvalidSortException();
+        }
+
+        //DIARY_003
+        if(blockTypeConfirm.isPresent()){
+            throw new CDiaryInvalidBlockException();
+        }
+
+        //DIARY_002
+        if (diaryRequest.getMood().equals("best") ||
+                diaryRequest.getMood().equals("good") ||
+                diaryRequest.getMood().equals("normal") ||
+                diaryRequest.getMood().equals("bad") ||
+                diaryRequest.getMood().equals("worst") ){
+        }
+        else {
+            throw new CDiaryInvalidMoodException();
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(diaryService.save(diaryRequest.toDto()));
     }
 
