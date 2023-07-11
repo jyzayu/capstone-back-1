@@ -22,7 +22,7 @@ public class DiaryMoodSearchResponse {
 
     public static DiaryMoodSearchResponse from(final Diary diary) {
         //문자열 형태로 변환해달라는 프론트의 요청으로 response format 수정
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyy.MM.dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         String formattedDate = diary.getCreatedAt().format(formatter);
         return new DiaryMoodSearchResponse(
                 diary.getId(),
