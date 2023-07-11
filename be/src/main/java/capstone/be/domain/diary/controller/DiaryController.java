@@ -11,7 +11,6 @@ import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
 import capstone.be.domain.diary.dto.response.DiaryMoodSearchResponse;
 import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
 import capstone.be.domain.diary.service.DiaryService;
-import capstone.be.global.advice.exception.calendar.CDiaryCalendarException;
 import capstone.be.global.advice.exception.diary.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
