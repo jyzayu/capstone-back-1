@@ -22,12 +22,9 @@ accessTokenInValid:
   code: "AUTH_008"
   msg: "액세스 토큰이 잘못되었습니다."
 
-
 userNotFound2:
   code: "AUTH_010"
   msg: "존재하지 않는 유저입니다."
-
-
 
 refreshTokenInValid:
   code: "AUTH_009"
@@ -45,21 +42,23 @@ hashtagException:
 moodException:
   code: "DIARY_002"
 typeException:
-  code: "DIARY_003"
-levelException:
   code: "DIARY_004"
-fontException:
-  code: "DIARY_005"
 sortException:
+  code: "DIARY_005"
+fontException:
   code: "DIARY_006"
-headingException:
+levelException:
   code: "DIARY_007"
-linkException:
-  code: "DIARY_008"
 noDiaryException:
   code: "DIARY_009"
 pastException:
   code: "DIARY_010"
+noPageException:
+  code: "DIARY_011"
+
+## CALENDAR ###############################
+noDiaryCalendarException:
+  code: "CALENDAR_001"
 
 ### AWS ##########################################
 imgServerException:
