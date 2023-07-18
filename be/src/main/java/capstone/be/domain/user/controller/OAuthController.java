@@ -29,7 +29,6 @@ public class OAuthController {
 
     @GetMapping("/login/oauth2/code/kakao")
     public ResponseEntity<String> getAuthCode(@RequestParam String code) throws Exception {
-        System.out.println("author code = " + code);
         // code로 token 요청
         RetKakaoOAuth tokenInfo = kakaoService.getKakaoTokenInfo(code);
         String access_Token = tokenInfo.getAccess_token();
