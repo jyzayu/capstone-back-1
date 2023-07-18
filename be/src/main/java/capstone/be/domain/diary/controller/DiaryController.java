@@ -7,10 +7,7 @@ import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryRandomDto;
 import capstone.be.domain.diary.dto.request.DiaryRequest;
-import capstone.be.domain.diary.dto.response.CalendarResponse;
-import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodSearchResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
+import capstone.be.domain.diary.dto.response.*;
 import capstone.be.domain.diary.service.DiaryService;
 import capstone.be.domain.diary.service.MainService;
 import capstone.be.global.advice.exception.diary.*;
@@ -102,6 +99,11 @@ public class DiaryController {
         }else{
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/total")
+    public ResponseEntity<DiaryMainTotalResponse> getMainTotal(){
+        return ResponseEntity.ok(mainService.getDiaryTotal());
     }
 
 }
