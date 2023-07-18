@@ -4,6 +4,7 @@ import capstone.be.domain.diary.domain.BProperties;
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryDto;
+import capstone.be.domain.diary.dto.response.CalendarResponse;
 import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
 import capstone.be.domain.hashtag.dto.HashtagDto;
 import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
@@ -12,7 +13,6 @@ import capstone.be.domain.hashtag.domain.Hashtag;
 import capstone.be.domain.hashtag.service.HashtagService;
 import capstone.be.global.advice.exception.diary.CDiaryNotFoundException;
 import capstone.be.s3.AmazonS3Service;
-import io.lettuce.core.dynamic.annotation.Param;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +26,8 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -65,8 +67,24 @@ public class DiaryService {
         }
         diary.setThumbnail(thumbnailUrl);
 
+        //title이 비어있을 경우 첫번째 블록 내용을 제목으로 대체
+        String title = diaryDto.getTitle();
+        System.out.println("title = " + title);
+        BProperties firstBlock = diaryDto.getBlocks().get(0);
+        System.out.println("title = " + title);
+        if (title == null || title.isBlank()) {
+            if(firstBlock.getType().equals("img")){
+                title = "(이미지)";
+            }else{
+                title = firstBlock.getData().getText();
+            }
+            diary.setTitle(title);
+        }
+
+
         return new DiaryCreateResponse(diaryRepository.save(diary).getId());
     }
+
 
     @Transactional(readOnly = true)
     public DiaryCreatedDto getDiary(Long diaryId){
@@ -142,6 +160,15 @@ public class DiaryService {
         Long worst = ((BigInteger) result[4]).longValue();
 
         return new DiaryMoodTotalResponse(best, good, normal, bad, worst);
+    }
+
+    //다이어리 캘린더 가져오기
+    public List<CalendarResponse> getDiaryByMonth(int year, int month){
+        LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0, 0);
+        LocalDateTime endDate = startDate.withDayOfMonth(startDate.toLocalDate().lengthOfMonth());
+        List<CalendarResponse> calendarList = diaryRepository.findByCreatedAtBetween(startDate,endDate);
+
+        return calendarList;
     }
 
 }
