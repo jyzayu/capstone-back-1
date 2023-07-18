@@ -25,7 +25,8 @@ public class UserPrincipal extends AuditingFields implements UserDetails {
     private List<String> roles = new ArrayList<>();
 
 
-    private UserPrincipal(String email, String userPassword, String nickname) {
+    private UserPrincipal(Long userId, String email, String userPassword, String nickname) {
+        this.userId = userId;
         this.email = email;
         this.password = userPassword;
         this.nickname = nickname;
@@ -34,12 +35,13 @@ public class UserPrincipal extends AuditingFields implements UserDetails {
         this.roles = Collections.singletonList("ROLE_USER");
     }
 
-    public static UserPrincipal of(String email, String password, String nickname) {
-        return new UserPrincipal(email, password, nickname);
+    public static UserPrincipal of(Long userId, String email, String password, String nickname) {
+        return new UserPrincipal(userId, email, password, nickname);
     }
 
     public static UserPrincipal from(User dto) {
         return UserPrincipal.of(
+                dto.getUserId(),
                 dto.getEmail(),
                 dto.getPassword(),
                 dto.getNickname()

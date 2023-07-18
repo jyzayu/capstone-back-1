@@ -87,6 +87,17 @@ public class ExceptionAdvice {
     }
 
     /**
+     잘못된 이메일 형식 AUTH_004
+     */
+    @ExceptionHandler(CWrongEmailFailedException.class)
+    protected ResponseEntity<CommonResult> wrongEmailFailedException(HttpServletRequest request, CWrongEmailFailedException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseService.getFailResult(
+                (getMessage("wrongEmailFailed.code"))
+        ));
+    }
+
+
+    /**
      잘못된 닉네임 형식 AUTH_005
      */
     @ExceptionHandler(CNicknameSignupFailed2Exception.class)
@@ -133,8 +144,8 @@ public class ExceptionAdvice {
 
 
     /**
-     * -1003
-     * 전달한 Jwt 이 정상적이지 않은 경우 발생 시키는 예외
+     * AUTH_008
+     * 액세스 토큰 만료시 발생하는 에러
      */
     @ExceptionHandler(CAuthenticationEntryPointException.class)
     protected ResponseEntity<CommonResult> authenticationEntrypointException(HttpServletRequest request, CAuthenticationEntryPointException e) {
@@ -143,9 +154,10 @@ public class ExceptionAdvice {
         ));
     }
 
+
     /**
-     * -1004
-     * 권한이 없는 리소스를 요청한 경우 발생 시키는 예외
+     * AUTH_009
+     * refresh token 에러시 발생 시키는 에러
      */
     @ExceptionHandler(CAccessDeniedException.class)
     protected ResponseEntity<CommonResult> accessDeniedException(HttpServletRequest request, CAccessDeniedException e) {
@@ -165,6 +177,7 @@ public class ExceptionAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseService.getFailResult(
                 (getMessage("userNotFound2.code"))));
     }
+
 
 
     private String getMessage(String code) {

@@ -2,15 +2,16 @@ logging:
   level:
     root: warn
     com.restApi.restApiSpringBootApp: debug #debug info warn error fatal off
+    org.hibernate.type: trace
 server:
   port: 8080
 
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/test2?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:3306/capstone
     username: root
-    password: dlffpdlsk1@00
+    password: test1234
   messages:
     basename: i18n/exception
     encoding: UTF-8
