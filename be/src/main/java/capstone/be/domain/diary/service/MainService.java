@@ -30,7 +30,6 @@ public class MainService {
         if(diaryPage.hasContent()){
             diary = diaryPage.getContent().get(0);
         }
-
         DiaryRandomDto dto1 = DiaryRandomDto.from(diary);
         return dto1;
     }

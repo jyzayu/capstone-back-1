@@ -52,7 +52,6 @@ public class DiaryService {
             }
         });
 
-        // Todo : renewHashtags 메서드 및 패스트 캠퍼스 확인하기
         diaryDto.getHashtag().stream().map(HashtagDto::toEntity).collect(Collectors.toUnmodifiableSet());
         diary.addHashtags(hashtags);
 
