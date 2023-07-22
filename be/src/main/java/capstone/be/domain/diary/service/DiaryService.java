@@ -47,17 +47,8 @@ public class DiaryService {
 
     public DiaryCreateResponse save(DiaryDto diaryDto) throws IOException {
         Diary diary = diaryDto.toEntity();
-        Set<String> hashtagNamesInContent = diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet());
-        Set<Hashtag> hashtags = hashtagService.findHashtagsByNames(diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet()));
-        Set<String> existingHashtagNames = hashtags.stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet());
 
-        hashtagNamesInContent.forEach(newHashtagName -> {
-            if (!existingHashtagNames.contains(newHashtagName)) {
-                hashtags.add(Hashtag.of(newHashtagName));
-            }
-        });
-
-        diaryDto.getHashtag().stream().map(HashtagDto::toEntity).collect(Collectors.toUnmodifiableSet());
+        Set<Hashtag> hashtags = renewHashtagsFromContent(diaryDto);
         diary.addHashtags(hashtags);
 
         String thumbnailUrl;
@@ -116,7 +107,9 @@ public class DiaryService {
 
             hashtagIds.forEach(hashtagService::deleteHashtagWithoutArticles);
 
-            diary.addHashtags(dto.getHashtag().stream().map(HashtagDto::toEntity).collect(Collectors.toUnmodifiableSet()));
+            Set<Hashtag> hashtags = renewHashtagsFromContent(dto);
+            diary.addHashtags(hashtags);
+
         }catch (EntityNotFoundException e){
             // Diary_009
             throw new CDiaryNotFoundException();
@@ -174,7 +167,19 @@ public class DiaryService {
         return calendarList;
     }
 
+    private Set<Hashtag> renewHashtagsFromContent(DiaryDto diaryDto) {
+        Set<String> hashtagNamesInContent = diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet());
+        Set<Hashtag> hashtags = hashtagService.findHashtagsByNames(diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet()));
+        Set<String> existingHashtagNames = hashtags.stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet());
 
+        hashtagNamesInContent.forEach(newHashtagName -> {
+            if (!existingHashtagNames.contains(newHashtagName)) {
+                hashtags.add(Hashtag.of(newHashtagName));
+            }
+        });
+
+        return hashtags;
+    }
 }
 
 
