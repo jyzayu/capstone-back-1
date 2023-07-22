@@ -50,6 +50,8 @@ fontException:
 levelException:
   code: "DIARY_007"
 noDiaryException:
+  code: "DIARY_008"
+pastEditException:
   code: "DIARY_009"
 pastException:
   code: "DIARY_010"
