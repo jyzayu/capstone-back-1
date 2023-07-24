@@ -55,10 +55,23 @@ public class CalendarMoodController {
 
     //캘린더 조회
     @GetMapping("/calendar")
-    public List<CalendarResponse> getDiarySummariesByMonth(@RequestParam(value = "year", defaultValue = "#{T(java.time.LocalDate).now().getYear()}") int year,
-                                                           @RequestParam(value = "month", defaultValue = "#{T(java.time.LocalDate).now().getMonthValue()}") int month) {
-        if (!(year > 1900) || !(year < 9999) || !(month >= 1) || !(month <= 12)){
-            throw new CDiaryCalendarException(); //todo : int타입만 에러코드가 출력됨. 수정 필요.
+    public List<CalendarResponse> getDiarySummariesByMonth(
+            @RequestParam(value = "year", defaultValue = "#{T(java.time.LocalDate).now().getYear()}") String yearStr,
+            @RequestParam(value = "month", defaultValue = "#{T(java.time.LocalDate).now().getMonthValue()}") String monthStr) {
+
+        int year;
+        int month;
+
+        try { //정수로 바꿀 수 없는 형태로 입력 시
+            year = Integer.parseInt(yearStr);
+            month = Integer.parseInt(monthStr);
+        } catch (NumberFormatException e) {
+            throw new CDiaryCalendarException();
+        }
+
+        if (!(year > 1900) || !(year < 9999) || !(month >= 1) || !(month <= 12)){ //정수 범위 초과 시
+            throw new CDiaryCalendarException();
+
         }
 
         //캘린더 정보 불러내기
