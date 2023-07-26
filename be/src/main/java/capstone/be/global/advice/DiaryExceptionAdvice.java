@@ -85,6 +85,13 @@ public class DiaryExceptionAdvice {
                 (getMessage("noPageException.code"))
         ));
     }
+    //DIARY_012
+    @ExceptionHandler(CDiarySearchPageInvalidException.class)
+    protected ResponseEntity<CommonResult> CDiarySearchPageInvalidException(HttpServletRequest request, CDiarySearchPageInvalidException e) {
+        return ResponseEntity.status(400).body(responseService.getFailResult(
+                (getMessage("noSearchPageException.code"))
+        ));
+    }
 
 
     private String getMessage(String code) {

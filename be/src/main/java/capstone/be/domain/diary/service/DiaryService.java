@@ -14,10 +14,7 @@ import capstone.be.domain.hashtag.service.HashtagService;
 import capstone.be.global.advice.exception.diary.CDiaryNotFoundException;
 import capstone.be.s3.AmazonS3Service;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +23,6 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -94,6 +90,20 @@ public class DiaryService {
                 .orElseThrow(() -> new CDiaryNotFoundException());
     }
 
+
+
+    @Transactional
+    public Page<Diary> getSearchDiaryTitle(String content, int page,int size){
+        Sort sort = Sort.by("created_at").descending();
+        Pageable pageable = PageRequest.of(page,size,sort);
+        Page<Diary> postList = diaryRepository.findSearchList(content,pageable);
+
+
+        if (postList.isEmpty())
+               postList = diaryRepository.findAll(pageable);
+        return postList;
+    }
+
     public void updateDiary(Long diaryId, DiaryDto dto){
         try {
             Diary diary = diaryRepository.getReferenceById(diaryId);
@@ -140,6 +150,8 @@ public class DiaryService {
         Page<Diary> postList = diaryRepository.findByMood(mood, pageable);
         return postList;
     }
+
+
 
     //마이페이지 들어갈 때 전체 기분별 다이어리 개수 보내주기
     public DiaryMoodTotalResponse getMoodTotal() {

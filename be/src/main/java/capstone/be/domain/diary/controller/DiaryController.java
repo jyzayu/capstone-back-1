@@ -37,7 +37,9 @@ public class DiaryController {
     public ResponseEntity<DiaryCreateResponse> createDiary(@RequestBody DiaryRequest diaryRequest) throws IOException{   // id 만 반환하는 응답
         Optional<BProperties> levelConfirm = diaryRequest.getBlocks().stream().filter(x -> x.getData().getLevel()>=4).findAny();
 
-        Optional<BProperties> sortConfirm = diaryRequest.getBlocks().stream().filter(x -> !x.getData().getAlign().equals("left")).findAny();
+        Optional<BProperties> sortConfirm = diaryRequest.getBlocks().stream().filter(x -> !x.getData().getAlign().equals("left")
+        && !x.getData().getAlign().equals("center")
+        && !x.getData().getAlign().equals("right")).findAny();
 
         Optional<BProperties> blockTypeConfirm = diaryRequest.getBlocks().stream()
                 .filter(x ->  !x.getType().equals("text")

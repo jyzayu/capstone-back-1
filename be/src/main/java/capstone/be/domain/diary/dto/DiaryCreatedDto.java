@@ -13,6 +13,7 @@ import capstone.be.domain.hashtag.dto.HashtagDto;
 
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,15 +21,16 @@ import java.util.List;
 
 
 public record DiaryCreatedDto(
+
         String title,
+        String date,
         String weather,
         Set<String> hashtag,
         String mood,
 
         String font,
+        List<BProperties> blocks
 
-        List<BProperties> blocks,
-        LocalDateTime date
 ){
 
     public Diary toEntity(){
@@ -39,14 +41,15 @@ public record DiaryCreatedDto(
     @JsonCreator
     public static DiaryCreatedDto from(Diary diary){
 
-        return new DiaryCreatedDto(diary.getTitle(), diary.getWeather(),
+        return new DiaryCreatedDto(diary.getTitle(),
+                diary.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                diary.getWeather(),
                 diary.getHashtags().stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet()),
                 diary.getMood(),
                 diary.getFont(),
-                diary.getBlocks(),
-                diary.getCreatedAt());
-
+                diary.getBlocks())
+                ;
     }
 
-    }
+}
 

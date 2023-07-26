@@ -1,11 +1,10 @@
 package capstone.be.domain.diary.controller;
 
 import capstone.be.domain.diary.domain.Diary;
-import capstone.be.domain.diary.dto.response.CalendarResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodSearchResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
+import capstone.be.domain.diary.dto.response.*;
 import capstone.be.domain.diary.service.DiaryService;
 import capstone.be.global.advice.exception.calendar.CDiaryCalendarException;
+import capstone.be.global.advice.exception.diary.CDiarySearchPageInvalidException;
 import capstone.be.global.advice.exception.diary.CPageNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,4 +65,34 @@ public class CalendarMoodController {
 
         return responseList;
     }
+
+
+    @GetMapping("/search")
+    public DiaryPageResponse getSearchDiaryContents(@RequestParam(value = "content", defaultValue = "d") String content,
+                                                                   @RequestParam(value = "page", defaultValue = "0") int page,
+                                                                   @RequestParam(value = "size", defaultValue = "10") int size){
+        boolean lastPage =false;
+
+        Page<Diary> sortedDiaries = diaryService.getSearchDiaryTitle(content, page, size);
+
+
+
+        //DiaryEntity를 dto로 변환
+        List<Diary> diaryList = sortedDiaries.getContent();
+
+        int diaryNum= sortedDiaries.getTotalPages()-1;
+
+        //DIARY_012
+        if (diaryNum>size)
+            throw new CDiarySearchPageInvalidException();
+
+        if(diaryNum == page)
+            lastPage = true;
+
+        List<DiaryContentSearchResponse> responses = diaryList.stream().map(DiaryContentSearchResponse::from).collect(Collectors.toList());
+        DiaryPageResponse responses2 = DiaryPageResponse.from(responses,page,lastPage);
+        return responses2;
+    }
+
+
 }

@@ -41,11 +41,11 @@ public class DiaryDto{
         }
 
         public static DiaryDto of(String title, String weather, Set<HashtagDto> hashtag, String mood,String font, List<BProperties> blocks) {
-                return new DiaryDto(title, weather, hashtag, mood, font, null, blocks);
+                return new DiaryDto(title, weather, hashtag, mood, font,null, blocks);
         }
 
         public static DiaryDto of(String title, String weather, Set<HashtagDto> hashtag, String mood,String font, String thumbnail, List<BProperties> blocks) {
-                return new DiaryDto(title, weather, hashtag, mood, font, thumbnail, blocks);
+                return new DiaryDto(title, weather, hashtag, mood, font,thumbnail, blocks);
         }
 
 
