@@ -78,6 +78,14 @@ public class DiaryExceptionAdvice {
         ));
     }
 
+    //DIARY_009
+    @ExceptionHandler(CDiaryPastEditException.class)
+    protected ResponseEntity<CommonResult> CDiaryEditException(HttpServletRequest request, CDiaryPastEditException e) {
+        return ResponseEntity.status(400).body(responseService.getFailResult(
+                (getMessage("pastEditException.code"))
+        ));
+    }
+
     //DIARY_011
     @ExceptionHandler(CPageNotFoundException.class)
     protected ResponseEntity<CommonResult> PageNotFoundException(HttpServletRequest request, CPageNotFoundException e) {

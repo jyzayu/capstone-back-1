@@ -5,6 +5,7 @@ import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryDto;
 import capstone.be.domain.diary.dto.response.CalendarResponse;
+import capstone.be.domain.diary.dto.response.DiaryMainTotalResponse;
 import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
 import capstone.be.domain.hashtag.dto.HashtagDto;
 import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
@@ -12,9 +13,17 @@ import capstone.be.domain.diary.repository.DiaryRepository;
 import capstone.be.domain.hashtag.domain.Hashtag;
 import capstone.be.domain.hashtag.service.HashtagService;
 import capstone.be.global.advice.exception.diary.CDiaryNotFoundException;
+import capstone.be.global.advice.exception.diary.CDiaryPastEditException;
 import capstone.be.s3.AmazonS3Service;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +32,9 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -40,18 +51,8 @@ public class DiaryService {
 
     public DiaryCreateResponse save(DiaryDto diaryDto) throws IOException {
         Diary diary = diaryDto.toEntity();
-        Set<String> hashtagNamesInContent = diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet());
-        Set<Hashtag> hashtags = hashtagService.findHashtagsByNames(diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet()));
-        Set<String> existingHashtagNames = hashtags.stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet());
 
-        hashtagNamesInContent.forEach(newHashtagName -> {
-            if (!existingHashtagNames.contains(newHashtagName)) {
-                hashtags.add(Hashtag.of(newHashtagName));
-            }
-        });
-
-        // Todo : renewHashtags 메서드 및 패스트 캠퍼스 확인하기
-        diaryDto.getHashtag().stream().map(HashtagDto::toEntity).collect(Collectors.toUnmodifiableSet());
+        Set<Hashtag> hashtags = renewHashtagsFromContent(diaryDto);
         diary.addHashtags(hashtags);
 
         String thumbnailUrl;
@@ -108,6 +109,12 @@ public class DiaryService {
         try {
             Diary diary = diaryRepository.getReferenceById(diaryId);
 
+            //DIARY_009
+            LocalDate currentDate = LocalDate.now();
+            LocalDate creationDate = diary.getCreatedAt().toLocalDate();
+            if(!currentDate.equals(creationDate)){
+                throw new CDiaryPastEditException();
+            }
 
             if (dto.getTitle() != null) { diary.setTitle(dto.getTitle()); }
             if (dto.getWeather() != null) { diary.setWeather(dto.getWeather()); }
@@ -121,15 +128,17 @@ public class DiaryService {
                     .collect(Collectors.toUnmodifiableSet());
             diary.clearHashtags();
             diaryRepository.flush();
-
             hashtagIds.forEach(hashtagService::deleteHashtagWithoutArticles);
 
-            diary.addHashtags(dto.getHashtag().stream().map(HashtagDto::toEntity).collect(Collectors.toUnmodifiableSet()));
+            Set<Hashtag> hashtags = renewHashtagsFromContent(dto);
+            diary.addHashtags(hashtags);
+
         }catch (EntityNotFoundException e){
-            // Diary_009
+            // Diary_008
             throw new CDiaryNotFoundException();
         }
     }
+
 
     public void deleteDiary(Long diaryId) {
         Diary diary = diaryRepository.getReferenceById(diaryId);
@@ -184,6 +193,19 @@ public class DiaryService {
         return calendarList;
     }
 
+    private Set<Hashtag> renewHashtagsFromContent(DiaryDto diaryDto) {
+        Set<String> hashtagNamesInContent = diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet());
+        Set<Hashtag> hashtags = hashtagService.findHashtagsByNames(diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet()));
+        Set<String> existingHashtagNames = hashtags.stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet());
+
+        hashtagNamesInContent.forEach(newHashtagName -> {
+            if (!existingHashtagNames.contains(newHashtagName)) {
+                hashtags.add(Hashtag.of(newHashtagName));
+            }
+        });
+
+        return hashtags;
+    }
 }
 
 

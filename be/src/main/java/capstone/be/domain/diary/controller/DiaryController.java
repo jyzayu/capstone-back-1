@@ -5,12 +5,11 @@ package capstone.be.domain.diary.controller;
 import capstone.be.domain.diary.domain.BProperties;
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
+import capstone.be.domain.diary.dto.DiaryRandomDto;
 import capstone.be.domain.diary.dto.request.DiaryRequest;
-import capstone.be.domain.diary.dto.response.CalendarResponse;
-import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodSearchResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
+import capstone.be.domain.diary.dto.response.*;
 import capstone.be.domain.diary.service.DiaryService;
+import capstone.be.domain.diary.service.MainService;
 import capstone.be.global.advice.exception.diary.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +27,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/diary")
+@RequestMapping("/api")
 public class DiaryController {
 
     private final DiaryService diaryService;
+    private final MainService mainService;
 
-    @PostMapping
+    @PostMapping("/diary")
     public ResponseEntity<DiaryCreateResponse> createDiary(@RequestBody DiaryRequest diaryRequest) throws IOException{   // id 만 반환하는 응답
         Optional<BProperties> levelConfirm = diaryRequest.getBlocks().stream().filter(x -> x.getData().getLevel()>=4).findAny();
 
@@ -74,23 +74,38 @@ public class DiaryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(diaryService.save(diaryRequest.toDto()));
     }
 
-    @GetMapping("/{diaryId}")
+    @GetMapping("/diary/{diaryId}")
     public ResponseEntity<DiaryCreatedDto> diary(@PathVariable Long diaryId){   // DiaryDto에 date(createdAt)이 추가된 응답
         return ResponseEntity.ok(diaryService.getDiary(diaryId));
     }
 
 
-    @PatchMapping("/{diaryId}")
+    @PatchMapping("/diary/{diaryId}")
     public ResponseEntity<?> updateDiary(@PathVariable Long diaryId, @RequestBody DiaryRequest diaryRequest){
         diaryService.updateDiary(diaryId, diaryRequest.toDto());
         return ResponseEntity.ok("");
     }
 
 
-    @DeleteMapping("/{diaryId}")
+    @DeleteMapping("/diary/{diaryId}")
     public ResponseEntity<?> deleteArticle(@PathVariable Long diaryId){  // 응답 값 없음
         diaryService.deleteDiary(diaryId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
+    }
+
+    @GetMapping("/diary/random")
+    public ResponseEntity<DiaryRandomDto> getRandomDiary(){
+        DiaryRandomDto randomDiary = mainService.getRandomDiary();
+        if(randomDiary != null) {
+            return ResponseEntity.ok(randomDiary);
+        }else{
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/total")
+    public ResponseEntity<DiaryMainTotalResponse> getMainTotal(){
+        return ResponseEntity.ok(mainService.getDiaryTotal());
     }
 
 }

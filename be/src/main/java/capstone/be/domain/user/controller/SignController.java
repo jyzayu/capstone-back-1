@@ -4,6 +4,7 @@ package capstone.be.domain.user.controller;
 import capstone.be.domain.user.domain.User;
 import capstone.be.domain.user.dto.KakaoProfile;
 import capstone.be.domain.user.dto.LoginResponseDto;
+import capstone.be.domain.user.dto.UserInfoDto;
 import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.domain.user.service.EditUserService;
 import capstone.be.domain.user.service.KakaoService;
@@ -19,6 +20,7 @@ import capstone.be.global.dto.signup.UserSignupRequestDto;
 import capstone.be.global.dto.signup.UserSocialLoginRequestDto;
 import capstone.be.global.dto.signup.UserSocialSignupRequestDto;
 import capstone.be.global.jwt.JwtProvider;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -86,8 +88,6 @@ public class SignController {
         //신규 사용자인 경우 카카오토큰과 true
         if(user.isEmpty()){
             return ResponseEntity.ok(
-                    //Todo: rtk를 null로하면 rtk:null로 갈텐데 controller에서 response type통일하지않나? exception message 보내는식으로?
-                    //Todo: response type?로하면 되나? 언제쓰는거지? generic type같은건가?
                     new LoginResponseDto(kakaoAccessToken, null, true));
         }
         else {
@@ -161,5 +161,14 @@ public class SignController {
         editUserService.deleteUser(Long.parseLong(userId));
 
         return ResponseEntity.ok("");
+    }
+
+    @GetMapping("auth/info")
+    public ResponseEntity<UserInfoDto> getUserInfo(HttpServletRequest request){
+        String atk = jwtProvider.resolveToken(request);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(atk));
+        Optional<User> user = userJpaRepo.findById(userId);
+
+        return ResponseEntity.ok(UserInfoDto.of(user.get().getEmail(), user.get().getNickname()));
     }
 }

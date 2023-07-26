@@ -10,7 +10,6 @@ import capstone.be.global.dto.jwt.ReissueDto;
 import capstone.be.global.dto.jwt.TokenDto;
 import capstone.be.global.dto.signup.UserSignupRequestDto;
 import capstone.be.global.jwt.JwtProvider;
-import capstone.be.global.jwt.RefreshTokenJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,7 +30,6 @@ public class SignService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final RedisTemplate redisTemplate;
-    private final RefreshTokenJpaRepository tokenJpaRepo;
 
 
 
