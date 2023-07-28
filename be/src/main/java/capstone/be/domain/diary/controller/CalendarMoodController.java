@@ -87,7 +87,7 @@ public class CalendarMoodController {
 
 
     @GetMapping("/search")
-    public DiaryPageResponse getSearchDiaryContents(@RequestParam(value = "content", defaultValue = "d") String content,
+    public DiaryPageResponse getSearchDiaryContents(@RequestParam(value = "text", defaultValue = "d") String text,
                                                                    @RequestParam(value = "page", defaultValue = "0") int page,
                                                                    @RequestParam(value = "size", defaultValue = "10") int size,
                                                     HttpServletRequest tokenRequest){
@@ -97,7 +97,7 @@ public class CalendarMoodController {
 
         Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
 
-        Page<Diary> sortedDiaries = diaryService.getSearchDiaryTitle(content, page, size,userId);
+        Page<Diary> sortedDiaries = diaryService.getSearchDiaryTitle(text, page, size,userId);
 
 
 
