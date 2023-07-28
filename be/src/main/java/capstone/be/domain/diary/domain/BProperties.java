@@ -1,6 +1,10 @@
 package capstone.be.domain.diary.domain;
 
-import javax.persistence.Entity;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -9,16 +13,16 @@ import javax.persistence.Id;
 public class BProperties {
 
 
-    public static Long id = 0L;
+    public Long id =0L ;
     private String type;
     private BPropertiesData data;
 
     public Long getId() {
-        return ++id;
+        return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(Long id2) {
+            this.id = id2;
     }
 
     public String getType() {

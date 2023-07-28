@@ -13,10 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
     Page<Diary> findByMood(String mood, Pageable pageable);
+
+
+    Page<Diary> findByUserId(Long userid,Pageable pageable);
     List<CalendarResponse> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 
 
@@ -26,9 +30,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 //    List<DiaryRandomDto> findRandom();
 
 
-
-
-    @Query(value = "SELECT * from diary  where blocks like %:content% or title like %:content%",nativeQuery = true)
-    Page<Diary> findSearchList(String content,Pageable pageable);
+    @Query(value = "SELECT * from diary  where blocks like %:content% or title like %:content% and user_id = :userid ",nativeQuery = true)
+    Page<Diary> findSearchList(String content,Long userid,Pageable pageable);
 
 }

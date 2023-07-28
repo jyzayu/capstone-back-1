@@ -53,6 +53,3 @@ public class DiaryContentSearchResponse {
     }
 }
 
-// 내용 검색 추가하고
-// 검색시 해시태그 정보 추가로 나오게 하고
-// 사용자 정보 받아서 검색하는 방식 추가하기바람

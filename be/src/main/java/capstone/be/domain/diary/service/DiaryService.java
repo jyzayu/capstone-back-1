@@ -69,6 +69,7 @@ public class DiaryService {
         String title = diaryDto.getTitle();
         System.out.println("title = " + title);
         BProperties firstBlock = diaryDto.getBlocks().get(0);
+
         System.out.println("title = " + title);
         if (title == null || title.isBlank()) {
             if(firstBlock.getType().equals("img")){
@@ -91,13 +92,18 @@ public class DiaryService {
                 .orElseThrow(() -> new CDiaryNotFoundException());
     }
 
-
+    @Transactional
+    public Page<Diary> getAllDiary(Long userid,int page, int size){
+        Sort sort = Sort.by("createdAt").descending();
+        Pageable pageable = PageRequest.of(page,size,sort);
+            return diaryRepository.findByUserId(userid,pageable);
+    }
 
     @Transactional
-    public Page<Diary> getSearchDiaryTitle(String content, int page,int size){
+    public Page<Diary> getSearchDiaryTitle(String content, int page,int size,Long userid){
         Sort sort = Sort.by("created_at").descending();
         Pageable pageable = PageRequest.of(page,size,sort);
-        Page<Diary> postList = diaryRepository.findSearchList(content,pageable);
+        Page<Diary> postList = diaryRepository.findSearchList(content,userid,pageable);
 
 
         if (postList.isEmpty())

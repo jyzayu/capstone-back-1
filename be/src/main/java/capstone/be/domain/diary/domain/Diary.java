@@ -35,6 +35,9 @@ public class Diary extends AuditingFields {
     private Long id;
 
     @Setter
+    private Long userId;
+
+    @Setter
     @Column(nullable = false)
     private String title;
 
@@ -71,6 +74,39 @@ public class Diary extends AuditingFields {
     }
 
 
+    private Diary(Long userId,String title, String weather, String mood, String font,String thumbnail, List<BProperties> blocks) {
+        this.userId = userId;
+        this.title = title;
+        this.weather = weather;
+        this.mood = mood;
+        this.font=font;
+        this.thumbnail=thumbnail;
+        this.blocks =blocks;
+    }
+
+    public static Diary of(Long userId,String title, String weather, String mood, String font, List<BProperties> blocks){
+        return new Diary(userId,title, weather, mood, font, null, blocks);
+    }
+
+
+    public static Diary of(Long userId,String title, String weather, String mood, String font,String thumbnail, List<BProperties> blocks){
+        return new Diary(userId,title, weather, mood, font, thumbnail, blocks);
+    }
+
+
+
+    public void addHashtag(Hashtag hashtag) {
+        this.getHashtags().add(hashtag);
+    }
+
+    public void addHashtags(Collection<Hashtag> hashtags) {
+        this.getHashtags().addAll(hashtags);
+    }
+
+    public void clearHashtags() {
+        this.getHashtags().clear();
+    }
+    /*
     private Diary(String title, String weather, String mood, String font,String thumbnail, List<BProperties> blocks) {
         this.title = title;
         this.weather = weather;
@@ -88,18 +124,6 @@ public class Diary extends AuditingFields {
     public static Diary of(String title, String weather, String mood, String font,String thumbnail, List<BProperties> blocks){
         return new Diary(title, weather, mood, font, thumbnail, blocks);
     }
-
-    public void addHashtag(Hashtag hashtag) {
-        this.getHashtags().add(hashtag);
-    }
-
-    public void addHashtags(Collection<Hashtag> hashtags) {
-        this.getHashtags().addAll(hashtags);
-    }
-
-    public void clearHashtags() {
-        this.getHashtags().clear();
-    }
-
+    */
 
 }

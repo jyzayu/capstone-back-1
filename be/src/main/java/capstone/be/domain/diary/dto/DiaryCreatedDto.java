@@ -21,7 +21,7 @@ import java.util.List;
 
 
 public record DiaryCreatedDto(
-
+        Long userId,
         String title,
         String date,
         String weather,
@@ -33,11 +33,31 @@ public record DiaryCreatedDto(
 
 ){
 
+
+    public Diary toEntity(){
+        return Diary.of(userId,title, weather, mood, font, blocks);
+
+    }
+
+
+    @JsonCreator
+    public static DiaryCreatedDto from(Diary diary){
+
+        return new DiaryCreatedDto(diary.getUserId(), diary.getTitle(),
+                diary.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                diary.getWeather(),
+                diary.getHashtags().stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet()),
+                diary.getMood(),
+                diary.getFont(),
+                diary.getBlocks())
+                ;
+    }
+
+    /*
     public Diary toEntity(){
         return Diary.of(title, weather, mood, font, blocks);
 
     }
-
     @JsonCreator
     public static DiaryCreatedDto from(Diary diary){
 
@@ -49,7 +69,7 @@ public record DiaryCreatedDto(
                 diary.getFont(),
                 diary.getBlocks())
                 ;
-    }
+    }*/
 
 }
 
