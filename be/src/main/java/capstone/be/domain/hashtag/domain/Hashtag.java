@@ -54,4 +54,6 @@ public class Hashtag extends AuditingFields {
         return Objects.hash(this.getId());
     }
 
+
+
 }

@@ -16,11 +16,14 @@ import capstone.be.global.advice.exception.diary.CDiaryNotFoundException;
 import capstone.be.global.advice.exception.diary.CDiaryPastEditException;
 import capstone.be.s3.AmazonS3Service;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +69,7 @@ public class DiaryService {
         String title = diaryDto.getTitle();
         System.out.println("title = " + title);
         BProperties firstBlock = diaryDto.getBlocks().get(0);
+
         System.out.println("title = " + title);
         if (title == null || title.isBlank()) {
             if(firstBlock.getType().equals("img")){
@@ -86,6 +90,25 @@ public class DiaryService {
         return diaryRepository.findById(diaryId)
                 .map(DiaryCreatedDto::from)
                 .orElseThrow(() -> new CDiaryNotFoundException());
+    }
+
+    @Transactional
+    public Page<Diary> getAllDiary(Long userid,int page, int size){
+        Sort sort = Sort.by("createdAt").descending();
+        Pageable pageable = PageRequest.of(page,size,sort);
+            return diaryRepository.findByUserId(userid,pageable);
+    }
+
+    @Transactional
+    public Page<Diary> getSearchDiaryTitle(String content, int page,int size,Long userid){
+        Sort sort = Sort.by("created_at").descending();
+        Pageable pageable = PageRequest.of(page,size,sort);
+        Page<Diary> postList = diaryRepository.findSearchList(content,userid,pageable);
+
+
+        if (postList.isEmpty())
+               postList = diaryRepository.findAll(pageable);
+        return postList;
     }
 
     public void updateDiary(Long diaryId, DiaryDto dto){
@@ -142,6 +165,8 @@ public class DiaryService {
         Page<Diary> postList = diaryRepository.findByMood(mood, pageable);
         return postList;
     }
+
+
 
     //마이페이지 들어갈 때 전체 기분별 다이어리 개수 보내주기
     public DiaryMoodTotalResponse getMoodTotal() {

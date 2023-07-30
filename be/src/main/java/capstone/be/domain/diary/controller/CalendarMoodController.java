@@ -1,12 +1,12 @@
 package capstone.be.domain.diary.controller;
 
 import capstone.be.domain.diary.domain.Diary;
-import capstone.be.domain.diary.dto.response.CalendarResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodSearchResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
+import capstone.be.domain.diary.dto.response.*;
 import capstone.be.domain.diary.service.DiaryService;
 import capstone.be.global.advice.exception.calendar.CDiaryCalendarException;
+import capstone.be.global.advice.exception.diary.CDiarySearchPageInvalidException;
 import capstone.be.global.advice.exception.diary.CPageNotFoundException;
+import capstone.be.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,12 +26,16 @@ import java.util.stream.Collectors;
 public class CalendarMoodController {
 
     private final DiaryService diaryService;
+    private final JwtProvider jwtProvider;
 
     //페이지형태
     @GetMapping("/mood")
     public List<DiaryMoodSearchResponse> getSortedDiariesByMood(@RequestParam(value = "mood", defaultValue = "best") String mood,
                                                                 @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                @RequestParam(value = "size", defaultValue = "10") int size){
+                                                                @RequestParam(value = "size", defaultValue = "10") int size
+                                                                ){
+
+
 
         if(!"best".equals(mood) && !"good".equals(mood) && !"normal".equals(mood) && !"bad".equals(mood) && !"worst".equals(mood)){
             //지정된 기분 외 다른 기분인 일기일 때
@@ -79,4 +84,39 @@ public class CalendarMoodController {
 
         return responseList;
     }
+
+
+    @GetMapping("/search")
+    public DiaryPageResponse getSearchDiaryContents(@RequestParam(value = "text", defaultValue = "d") String text,
+                                                                   @RequestParam(value = "page", defaultValue = "0") int page,
+                                                                   @RequestParam(value = "size", defaultValue = "10") int size,
+                                                    HttpServletRequest tokenRequest){
+        boolean lastPage =false;
+
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+
+        Page<Diary> sortedDiaries = diaryService.getSearchDiaryTitle(text, page, size,userId);
+
+
+
+        //DiaryEntity를 dto로 변환
+        List<Diary> diaryList = sortedDiaries.getContent();
+
+        int diaryNum= sortedDiaries.getTotalPages()-1;
+
+        //DIARY_012
+        if (diaryNum>size)
+            throw new CDiarySearchPageInvalidException();
+
+        if(diaryNum == page)
+            lastPage = true;
+
+        List<DiaryContentSearchResponse> responses = diaryList.stream().map(DiaryContentSearchResponse::from).collect(Collectors.toList());
+        DiaryPageResponse responses2 = DiaryPageResponse.from(responses,page,lastPage);
+        return responses2;
+    }
+
+
 }
