@@ -55,10 +55,10 @@ public class DiaryExceptionAdvice {
     }
 
     //DIARY_006 : 폰트 에러
-    @ExceptionHandler(CDiaryNotExistException.class)
-    protected ResponseEntity<CommonResult> DiaryNotExistException(HttpServletRequest request, CDiaryNotExistException e) {
+    @ExceptionHandler(CDiaryInvalidFontException.class)
+    protected ResponseEntity<CommonResult> CDiaryInvalidFontException(HttpServletRequest request, CDiaryInvalidFontException e) {
         return ResponseEntity.status(400).body(responseService.getFailResult(
-                (getMessage("linkException.code"))
+                (getMessage("fontException.code"))
         ));
     }
 
@@ -78,11 +78,26 @@ public class DiaryExceptionAdvice {
         ));
     }
 
+    //DIARY_009
+    @ExceptionHandler(CDiaryPastEditException.class)
+    protected ResponseEntity<CommonResult> CDiaryEditException(HttpServletRequest request, CDiaryPastEditException e) {
+        return ResponseEntity.status(400).body(responseService.getFailResult(
+                (getMessage("pastEditException.code"))
+        ));
+    }
+
     //DIARY_011
     @ExceptionHandler(CPageNotFoundException.class)
     protected ResponseEntity<CommonResult> PageNotFoundException(HttpServletRequest request, CPageNotFoundException e) {
         return ResponseEntity.status(400).body(responseService.getFailResult(
                 (getMessage("noPageException.code"))
+        ));
+    }
+    //DIARY_012
+    @ExceptionHandler(CDiarySearchPageInvalidException.class)
+    protected ResponseEntity<CommonResult> CDiarySearchPageInvalidException(HttpServletRequest request, CDiarySearchPageInvalidException e) {
+        return ResponseEntity.status(400).body(responseService.getFailResult(
+                (getMessage("noSearchPageException.code"))
         ));
     }
 
