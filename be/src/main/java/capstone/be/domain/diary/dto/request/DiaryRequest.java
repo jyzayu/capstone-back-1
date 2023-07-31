@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DiaryRequest{
+    Long userId;
     String title;
     String weather;
     @JsonProperty("hashtag")
@@ -28,6 +29,21 @@ public class DiaryRequest{
     String font;
     List<BProperties> blocks;
 
+
+    public static DiaryRequest of(Long userId,String title, String weather, Set<String> hashtagNames, String mood, String font, List<BProperties> blocks) {
+        return new DiaryRequest(userId,title, weather, hashtagNames, mood, font, blocks);
+    }
+
+    public DiaryDto toDto(Long Id){
+        return DiaryDto.of(Id,title, weather,
+                hashtagNames.stream().map(HashtagDto::of).collect(Collectors.toUnmodifiableSet())
+                ,mood
+                ,font
+                ,blocks
+        );
+    }
+
+    /*
     public static DiaryRequest of(String title, String weather, Set<String> hashtagNames, String mood, String font, List<BProperties> blocks) {
         return new DiaryRequest(title, weather, hashtagNames, mood, font, blocks);
     }
@@ -40,6 +56,8 @@ public class DiaryRequest{
                 ,blocks
         );
     }
+    */
+
 
 
 }

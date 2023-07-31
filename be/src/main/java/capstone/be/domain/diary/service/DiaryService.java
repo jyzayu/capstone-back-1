@@ -5,11 +5,11 @@ import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryDto;
 import capstone.be.domain.diary.dto.response.CalendarResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
-import capstone.be.domain.hashtag.dto.HashtagDto;
 import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
+import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
 import capstone.be.domain.diary.repository.DiaryRepository;
 import capstone.be.domain.hashtag.domain.Hashtag;
+import capstone.be.domain.hashtag.dto.HashtagDto;
 import capstone.be.domain.hashtag.service.HashtagService;
 import capstone.be.global.advice.exception.diary.CDiaryNotFoundException;
 import capstone.be.global.advice.exception.diary.CDiaryPastEditException;
@@ -26,10 +26,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
 import java.io.IOException;
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,18 +45,8 @@ public class DiaryService {
 
     public DiaryCreateResponse save(DiaryDto diaryDto) throws IOException {
         Diary diary = diaryDto.toEntity();
-        Set<String> hashtagNamesInContent = diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet());
-        Set<Hashtag> hashtags = hashtagService.findHashtagsByNames(diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet()));
-        Set<String> existingHashtagNames = hashtags.stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet());
 
-        hashtagNamesInContent.forEach(newHashtagName -> {
-            if (!existingHashtagNames.contains(newHashtagName)) {
-                hashtags.add(Hashtag.of(newHashtagName));
-            }
-        });
-
-        // Todo : renewHashtags 메서드 및 패스트 캠퍼스 확인하기
-        diaryDto.getHashtag().stream().map(HashtagDto::toEntity).collect(Collectors.toUnmodifiableSet());
+        Set<Hashtag> hashtags = renewHashtagsFromContent(diaryDto);
         diary.addHashtags(hashtags);
 
         String thumbnailUrl;
@@ -74,6 +63,7 @@ public class DiaryService {
         String title = diaryDto.getTitle();
         System.out.println("title = " + title);
         BProperties firstBlock = diaryDto.getBlocks().get(0);
+
         System.out.println("title = " + title);
         if (title == null || title.isBlank()) {
             if(firstBlock.getType().equals("img")){
@@ -94,6 +84,25 @@ public class DiaryService {
         return diaryRepository.findById(diaryId)
                 .map(DiaryCreatedDto::from)
                 .orElseThrow(() -> new CDiaryNotFoundException());
+    }
+
+    @Transactional
+    public Page<Diary> getAllDiary(Long userid,int page, int size){
+        Sort sort = Sort.by("createdAt").descending();
+        Pageable pageable = PageRequest.of(page,size,sort);
+            return diaryRepository.findByUserId(userid,pageable);
+    }
+
+    @Transactional
+    public Page<Diary> getSearchDiaryTitle(String content, int page,int size,Long userid){
+        Sort sort = Sort.by("created_at").descending();
+        Pageable pageable = PageRequest.of(page,size,sort);
+        Page<Diary> postList = diaryRepository.findSearchList(content,userid,pageable);
+
+
+        if (postList.isEmpty())
+               postList = diaryRepository.findAll(pageable);
+        return postList;
     }
 
     public void updateDiary(Long diaryId, DiaryDto dto){
@@ -120,7 +129,9 @@ public class DiaryService {
             diary.clearHashtags();
             diaryRepository.flush();
             hashtagIds.forEach(hashtagService::deleteHashtagWithoutArticles);
-            diary.addHashtags(dto.getHashtag().stream().map(HashtagDto::toEntity).collect(Collectors.toUnmodifiableSet()));
+
+            Set<Hashtag> hashtags = renewHashtagsFromContent(dto);
+            diary.addHashtags(hashtags);
 
         }catch (EntityNotFoundException e){
             // Diary_008
@@ -142,44 +153,61 @@ public class DiaryService {
     }
 
     //다이어리 기분별 서치
-    public Page<Diary> getSortedDiariesByMood(String mood, int page, int size) {
+    public Page<Diary> getSortedDiariesByMood(String mood, int page, int size, Long userId) {
         Sort sort = Sort.by("createdAt").descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Diary> postList = diaryRepository.findByMood(mood, pageable);
+        Page<Diary> postList = diaryRepository.findByUserIdAndMood(userId, mood, pageable);
         return postList;
     }
 
+
+
     //마이페이지 들어갈 때 전체 기분별 다이어리 개수 보내주기
-    public DiaryMoodTotalResponse getMoodTotal() {
+    public DiaryMoodTotalResponse getMoodTotal(Long userId) {
         String sql = "SELECT " +
-                "(SELECT COALESCE(COUNT(*), 0) FROM Diary WHERE mood = 'best') AS bestCount, " +
-                "(SELECT COALESCE(COUNT(*), 0) FROM Diary WHERE mood = 'good') AS goodCount, " +
-                "(SELECT COALESCE(COUNT(*), 0) FROM Diary WHERE mood = 'normal') AS normalCount, " +
-                "(SELECT COALESCE(COUNT(*), 0) FROM Diary WHERE mood = 'bad') AS badCount, " +
-                "(SELECT COALESCE(COUNT(*), 0) FROM Diary WHERE mood = 'worst') AS worstCount ";
+                "SUM(CASE WHEN mood = 'best' THEN 1 ELSE 0 END) AS bestCount, " +
+                "SUM(CASE WHEN mood = 'good' THEN 1 ELSE 0 END) AS goodCount, " +
+                "SUM(CASE WHEN mood = 'normal' THEN 1 ELSE 0 END) AS normalCount, " +
+                "SUM(CASE WHEN mood = 'bad' THEN 1 ELSE 0 END) AS badCount, " +
+                "SUM(CASE WHEN mood = 'worst' THEN 1 ELSE 0 END) AS worstCount " +
+                "FROM Diary WHERE user_id = ?";
 
         Query query = entityManager.createNativeQuery(sql);
+        query.setParameter(1, userId);
 
         Object[] result = (Object[]) query.getSingleResult();
 
-        Long best = ((BigInteger) result[0]).longValue();
-        Long good = ((BigInteger) result[1]).longValue();
-        Long normal = ((BigInteger) result[2]).longValue();
-        Long bad = ((BigInteger) result[3]).longValue();
-        Long worst = ((BigInteger) result[4]).longValue();
+        Long best = ((BigDecimal) result[0]).longValue();
+        Long good = ((BigDecimal) result[1]).longValue();
+        Long normal = ((BigDecimal) result[2]).longValue();
+        Long bad = ((BigDecimal) result[3]).longValue();
+        Long worst = ((BigDecimal) result[4]).longValue();
 
         return new DiaryMoodTotalResponse(best, good, normal, bad, worst);
     }
 
     //다이어리 캘린더 가져오기
-    public List<CalendarResponse> getDiaryByMonth(int year, int month){
+    public List<CalendarResponse> getDiaryByMonth(int year, int month, Long userId){
         LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0, 0);
-        LocalDateTime endDate = startDate.withDayOfMonth(startDate.toLocalDate().lengthOfMonth());
-        List<CalendarResponse> calendarList = diaryRepository.findByCreatedAtBetween(startDate,endDate);
+        LocalDateTime endDate = startDate.plusMonths(1).minusSeconds(1);
+        List<CalendarResponse> calendarList = diaryRepository.findByUserIdAndCreatedAtBetween(userId,startDate,endDate);
 
         return calendarList;
     }
 
+    private Set<Hashtag> renewHashtagsFromContent(DiaryDto diaryDto) {
+        Set<String> hashtagNamesInContent = diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet());
+        Set<Hashtag> hashtags = hashtagService.findHashtagsByNames(diaryDto.getHashtag().stream().map(HashtagDto::getHashtagName).collect(Collectors.toUnmodifiableSet()));
+        Set<String> existingHashtagNames = hashtags.stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet());
+
+        hashtagNamesInContent.forEach(newHashtagName -> {
+            if (!existingHashtagNames.contains(newHashtagName)) {
+                hashtags.add(Hashtag.of(newHashtagName));
+            }
+        });
+
+        return hashtags;
+    }
 }
 
 

@@ -57,6 +57,8 @@ pastException:
   code: "DIARY_010"
 noPageException:
   code: "DIARY_011"
+noSearchPageException:
+  code: "DIARY_012"
 
 ## CALENDAR ###############################
 noDiaryCalendarException:

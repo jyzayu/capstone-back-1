@@ -1,12 +1,12 @@
 package capstone.be.domain.diary.controller;
 
 import capstone.be.domain.diary.domain.Diary;
-import capstone.be.domain.diary.dto.response.CalendarResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodSearchResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
+import capstone.be.domain.diary.dto.response.*;
 import capstone.be.domain.diary.service.DiaryService;
 import capstone.be.global.advice.exception.calendar.CDiaryCalendarException;
+import capstone.be.global.advice.exception.diary.CDiarySearchPageInvalidException;
 import capstone.be.global.advice.exception.diary.CPageNotFoundException;
+import capstone.be.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,19 +26,34 @@ import java.util.stream.Collectors;
 public class CalendarMoodController {
 
     private final DiaryService diaryService;
+    private final JwtProvider jwtProvider;
 
     //페이지형태
     @GetMapping("/mood")
     public List<DiaryMoodSearchResponse> getSortedDiariesByMood(@RequestParam(value = "mood", defaultValue = "best") String mood,
-                                                                @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                @RequestParam(value = "size", defaultValue = "10") int size){
+                                                                @RequestParam(value = "page", defaultValue = "0") String page,
+                                                                @RequestParam(value = "size", defaultValue = "10") String size,
+                                                                HttpServletRequest tokenRequest
+                                                                ){
 
         if(!"best".equals(mood) && !"good".equals(mood) && !"normal".equals(mood) && !"bad".equals(mood) && !"worst".equals(mood)){
             //지정된 기분 외 다른 기분인 일기일 때
             //에러코드 추가
             throw new CPageNotFoundException();
         }
-        Page<Diary> sortedDiaries = diaryService.getSortedDiariesByMood(mood, page, size);
+        int intPage;
+        int intSize;
+
+        try { //정수로 바꿀 수 없는 형태로 입력 시
+            intPage = Integer.parseInt(page);
+            intSize = Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            throw new CPageNotFoundException();
+        }
+
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+        Page<Diary> sortedDiaries = diaryService.getSortedDiariesByMood(mood, intPage, intSize, userId);
 
         //DiaryEntity를 dto로 변환
         List<Diary> diaryList = sortedDiaries.getContent();
@@ -48,8 +64,10 @@ public class CalendarMoodController {
 
     //마이페이지 들어갈 때 전체 기분별 개수 보내주기
     @GetMapping("/mood/count")
-    public DiaryMoodTotalResponse getTotalMood(){
-        DiaryMoodTotalResponse response = diaryService.getMoodTotal();
+    public DiaryMoodTotalResponse getTotalMood(HttpServletRequest tokenRequest){
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+        DiaryMoodTotalResponse response = diaryService.getMoodTotal(userId);
         return response;
     }
 
@@ -57,7 +75,8 @@ public class CalendarMoodController {
     @GetMapping("/calendar")
     public List<CalendarResponse> getDiarySummariesByMonth(
             @RequestParam(value = "year", defaultValue = "#{T(java.time.LocalDate).now().getYear()}") String yearStr,
-            @RequestParam(value = "month", defaultValue = "#{T(java.time.LocalDate).now().getMonthValue()}") String monthStr) {
+            @RequestParam(value = "month", defaultValue = "#{T(java.time.LocalDate).now().getMonthValue()}") String monthStr,
+            HttpServletRequest tokenRequest) {
 
         int year;
         int month;
@@ -73,9 +92,44 @@ public class CalendarMoodController {
             throw new CDiaryCalendarException();
         }
 
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+
         //캘린더 정보 불러내기
-        List<CalendarResponse> responseList = diaryService.getDiaryByMonth(year, month);
+        List<CalendarResponse> responseList = diaryService.getDiaryByMonth(year, month, userId);
 
         return responseList;
+    }
+
+    @GetMapping("/search")
+    public DiaryPageResponse getSearchDiaryContents(@RequestParam(value = "text", defaultValue = "d") String text,
+                                                                   @RequestParam(value = "page", defaultValue = "0") int page,
+                                                                   @RequestParam(value = "size", defaultValue = "10") int size,
+                                                    HttpServletRequest tokenRequest){
+        boolean lastPage =false;
+
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+
+        Page<Diary> sortedDiaries = diaryService.getSearchDiaryTitle(text, page, size,userId);
+
+
+
+        //DiaryEntity를 dto로 변환
+        List<Diary> diaryList = sortedDiaries.getContent();
+
+        int diaryNum= sortedDiaries.getTotalPages()-1;
+
+        //DIARY_012
+        if (diaryNum>size)
+            throw new CDiarySearchPageInvalidException();
+
+        if(diaryNum == page)
+            lastPage = true;
+
+        List<DiaryContentSearchResponse> responses = diaryList.stream().map(DiaryContentSearchResponse::from).collect(Collectors.toList());
+        DiaryPageResponse responses2 = DiaryPageResponse.from(responses,page,lastPage);
+        return responses2;
     }
 }
