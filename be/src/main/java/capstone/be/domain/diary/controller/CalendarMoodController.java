@@ -31,18 +31,30 @@ public class CalendarMoodController {
     //페이지형태
     @GetMapping("/mood")
     public List<DiaryMoodSearchResponse> getSortedDiariesByMood(@RequestParam(value = "mood", defaultValue = "best") String mood,
-                                                                @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                @RequestParam(value = "size", defaultValue = "10") int size
+                                                                @RequestParam(value = "page", defaultValue = "0") String page,
+                                                                @RequestParam(value = "size", defaultValue = "10") String size,
+                                                                HttpServletRequest tokenRequest
                                                                 ){
-
-
 
         if(!"best".equals(mood) && !"good".equals(mood) && !"normal".equals(mood) && !"bad".equals(mood) && !"worst".equals(mood)){
             //지정된 기분 외 다른 기분인 일기일 때
             //에러코드 추가
             throw new CPageNotFoundException();
         }
-        Page<Diary> sortedDiaries = diaryService.getSortedDiariesByMood(mood, page, size);
+
+        int intPage;
+        int intSize;
+
+        try { //정수로 바꿀 수 없는 형태로 입력 시
+            intPage = Integer.parseInt(page);
+            intSize = Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            throw new CPageNotFoundException();
+        }
+
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+        Page<Diary> sortedDiaries = diaryService.getSortedDiariesByMood(mood, intPage, intSize, userId);
 
         //DiaryEntity를 dto로 변환
         List<Diary> diaryList = sortedDiaries.getContent();
@@ -53,8 +65,10 @@ public class CalendarMoodController {
 
     //마이페이지 들어갈 때 전체 기분별 개수 보내주기
     @GetMapping("/mood/count")
-    public DiaryMoodTotalResponse getTotalMood(){
-        DiaryMoodTotalResponse response = diaryService.getMoodTotal();
+    public DiaryMoodTotalResponse getTotalMood(HttpServletRequest tokenRequest){
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+        DiaryMoodTotalResponse response = diaryService.getMoodTotal(userId);
         return response;
     }
 
@@ -62,7 +76,8 @@ public class CalendarMoodController {
     @GetMapping("/calendar")
     public List<CalendarResponse> getDiarySummariesByMonth(
             @RequestParam(value = "year", defaultValue = "#{T(java.time.LocalDate).now().getYear()}") String yearStr,
-            @RequestParam(value = "month", defaultValue = "#{T(java.time.LocalDate).now().getMonthValue()}") String monthStr) {
+            @RequestParam(value = "month", defaultValue = "#{T(java.time.LocalDate).now().getMonthValue()}") String monthStr,
+            HttpServletRequest tokenRequest) {
 
         int year;
         int month;
@@ -76,11 +91,13 @@ public class CalendarMoodController {
 
         if (!(year > 1900) || !(year < 9999) || !(month >= 1) || !(month <= 12)){ //정수 범위 초과 시
             throw new CDiaryCalendarException();
-
         }
 
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+
         //캘린더 정보 불러내기
-        List<CalendarResponse> responseList = diaryService.getDiaryByMonth(year, month);
+        List<CalendarResponse> responseList = diaryService.getDiaryByMonth(year, month, userId);
 
         return responseList;
     }
@@ -117,6 +134,4 @@ public class CalendarMoodController {
         DiaryPageResponse responses2 = DiaryPageResponse.from(responses,page,lastPage);
         return responses2;
     }
-
-
 }

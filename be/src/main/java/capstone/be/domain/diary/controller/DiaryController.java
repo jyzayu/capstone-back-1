@@ -7,7 +7,8 @@ import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryRandomDto;
 import capstone.be.domain.diary.dto.request.DiaryRequest;
-import capstone.be.domain.diary.dto.response.*;
+import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
+import capstone.be.domain.diary.dto.response.DiaryMainTotalResponse;
 import capstone.be.domain.diary.service.DiaryService;
 import capstone.be.domain.diary.service.MainService;
 import capstone.be.global.advice.exception.diary.*;
@@ -65,6 +66,7 @@ public class DiaryController {
                 .filter(x ->  !x.getType().equals("text")
                         && !x.getType().equals("img")
                         && !x.getType().equals("heading")).findAny();
+
         for (String hashtagName : diaryRequest.getHashtagNames()) {
             hashCnt++;
         }
@@ -113,6 +115,7 @@ public class DiaryController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(diaryService.save(diaryRequest.toDto(userId)));
         //return ResponseEntity.status(HttpStatus.CREATED).body(diaryService.save(diaryRequest.toDto()));
+
     }
 
 
