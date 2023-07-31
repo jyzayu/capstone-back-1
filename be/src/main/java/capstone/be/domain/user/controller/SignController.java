@@ -151,7 +151,7 @@ public class SignController {
 
     //Todo : 로그아웃 코드가 중복되는데 서비스로 옮겨서 사용할 수 있을까?
     //회원 탈퇴 -> 로그아웃 후 delete
-    @DeleteMapping("/auth/delete")
+    @DeleteMapping("/auth/withdrawal")
     public ResponseEntity<String> deleteUser(HttpServletRequest request){
         String accessToken = jwtProvider.resolveToken(request);
         String userId = jwtProvider.getSubjects(accessToken);
