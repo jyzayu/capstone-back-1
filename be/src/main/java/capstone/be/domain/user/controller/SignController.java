@@ -10,10 +10,7 @@ import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.domain.user.service.EditUserService;
 import capstone.be.domain.user.service.KakaoService;
 import capstone.be.domain.user.service.SignService;
-import capstone.be.global.advice.exception.security.CEmailSignupFailedException;
-import capstone.be.global.advice.exception.security.CNicknameSignupFailed2Exception;
-import capstone.be.global.advice.exception.security.CNicknameSignupFailedException;
-import capstone.be.global.advice.exception.security.CUserNotFoundException;
+import capstone.be.global.advice.exception.security.*;
 import capstone.be.global.dto.jwt.ReissueDto;
 import capstone.be.global.dto.jwt.TokenDto;
 import capstone.be.global.dto.response.ResponseService;
@@ -127,7 +124,7 @@ public class SignController {
         }
 //       auth_004
         if(socialSignupRequestDto.getEmail().indexOf("@") == -1){
-            throw new CEmailSignupFailed2Exception();
+            throw new CWrongEmailFailedException();
         }
 
         //잘못된 닉네임 형식 005
