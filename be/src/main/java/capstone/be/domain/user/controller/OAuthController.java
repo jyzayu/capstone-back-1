@@ -25,13 +25,13 @@ public class OAuthController {
     private final ResponseService responseService;
 
     private final JwtProvider jwtProvider;
-// Todo: code를 프론트 통신할 떄 보내주면 해당 코드는 사용하지 않음, 테스트를 위해 사용
 
-    @GetMapping("/login/oauth2/code/kakao")
-    public ResponseEntity<String> getAuthCode(@RequestParam String code) throws Exception {
-        // code로 token 요청
-        RetKakaoOAuth tokenInfo = kakaoService.getKakaoTokenInfo(code);
-        String access_Token = tokenInfo.getAccess_token();
-        return ResponseEntity.ok(access_Token);
-    }
+// code를 프론트 통신할 떄 보내주면 해당 코드는 사용하지 않음, 테스트를 위해 사용
+@GetMapping("/login/oauth2/code/kakao")
+public ResponseEntity<String> getAuthCode(@RequestParam String code) throws Exception {
+//     code로 token 요청     -> login api에서 code로 token을 요청하기위해  코드 응답
+//    RetKakaoOAuth tokenInfo = kakaoService.getKakaoTokenInfo(code);
+//    String access_Token = tokenInfo.getAccess_token();
+    return ResponseEntity.ok(code);
+}
 }

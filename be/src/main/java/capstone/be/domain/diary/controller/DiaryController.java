@@ -7,6 +7,7 @@ import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryRandomDto;
 import capstone.be.domain.diary.dto.request.DiaryRequest;
+import capstone.be.domain.diary.dto.response.*;
 import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
 import capstone.be.domain.diary.dto.response.DiaryMainTotalResponse;
 import capstone.be.domain.diary.service.DiaryService;
@@ -117,7 +118,6 @@ public class DiaryController {
         //return ResponseEntity.status(HttpStatus.CREATED).body(diaryService.save(diaryRequest.toDto()));
 
     }
-
 
     @GetMapping("/diary/{diaryId}")
     public ResponseEntity<DiaryCreatedDto> diary(@PathVariable Long diaryId){   // DiaryDto에 date(createdAt)이 추가된 응답

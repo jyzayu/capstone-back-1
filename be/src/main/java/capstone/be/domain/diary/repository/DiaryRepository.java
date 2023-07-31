@@ -20,6 +20,12 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     Page<Diary> findByUserId(Long userid,Pageable pageable);
     List<CalendarResponse> findByUserIdAndCreatedAtBetween(Long userId,LocalDateTime startDate, LocalDateTime endDate);
 
+    Long countByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+//    @Query(nativeQuery = true, value = "SELECT d.title, d.weather, d.mood FROM diary d ORDER BY RAND() LIMIT 1")
+//    List<DiaryRandomDto> findRandom();
+
+
 
     Long countByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 

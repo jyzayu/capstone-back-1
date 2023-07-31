@@ -4,15 +4,13 @@ package capstone.be.domain.user.controller;
 import capstone.be.domain.user.domain.User;
 import capstone.be.domain.user.dto.KakaoProfile;
 import capstone.be.domain.user.dto.LoginResponseDto;
+import capstone.be.domain.user.dto.RetKakaoOAuth;
 import capstone.be.domain.user.dto.UserInfoDto;
 import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.domain.user.service.EditUserService;
 import capstone.be.domain.user.service.KakaoService;
 import capstone.be.domain.user.service.SignService;
-import capstone.be.global.advice.exception.security.CEmailSignupFailedException;
-import capstone.be.global.advice.exception.security.CNicknameSignupFailed2Exception;
-import capstone.be.global.advice.exception.security.CNicknameSignupFailedException;
-import capstone.be.global.advice.exception.security.CUserNotFoundException;
+import capstone.be.global.advice.exception.security.*;
 import capstone.be.global.dto.jwt.ReissueDto;
 import capstone.be.global.dto.jwt.TokenDto;
 import capstone.be.global.dto.response.ResponseService;
@@ -74,13 +72,17 @@ public class SignController {
         return ResponseEntity.ok(signService.reissue(request));
     }
 
-    // Todo: code 프론트에서 보내주는 것 사용하게 되면  UserSocialLoginRequestDto및 카카오토큰 요청 코드 추가하기
     @PostMapping("/auth/login")
     public ResponseEntity<?> loginByKakao(
             @RequestBody UserSocialLoginRequestDto socialLoginRequestDto) {
 
-        String kakaoAccessToken = socialLoginRequestDto.getAccessToken();
+        //전에는 kakaoAccessToken을 request로 받았지만, code 들어있는 request로 변경
+        //oauthcontroller 의 내용을 login api 에 옮긴다.  oauthcontroller의 내용은 프론트 연동 전 임시로 로그인하기 위한 코드
+        RetKakaoOAuth tokenInfo = kakaoService.getKakaoTokenInfo(socialLoginRequestDto.getCode());
+        String kakaoAccessToken = tokenInfo.getAccess_token();
+
         KakaoProfile kakaoProfile = kakaoService.getKakaoProfile(kakaoAccessToken);
+        // AUTH_001
         if (kakaoProfile == null) throw new CUserNotFoundException();
 
         Long userId = kakaoProfile.getId();
@@ -108,6 +110,7 @@ public class SignController {
     public ResponseEntity<TokenDto> signupBySocial(
             @RequestBody UserSocialSignupRequestDto socialSignupRequestDto) {
 
+
         KakaoProfile kakaoProfile =
                 kakaoService.getKakaoProfile(socialSignupRequestDto.getAccessToken());
         if (kakaoProfile == null) throw new CUserNotFoundException();
@@ -119,7 +122,12 @@ public class SignController {
         if (userJpaRepo.findByNickname(socialSignupRequestDto.getNickname()).isPresent()) {
             throw new CNicknameSignupFailedException();
         }
-        //잘못된 이메일 형식 005
+//       auth_004
+        if(socialSignupRequestDto.getEmail().indexOf("@") == -1){
+            throw new CWrongEmailFailedException();
+        }
+
+        //잘못된 닉네임 형식 005
         if (socialSignupRequestDto.getNickname().length() > 20){
             throw new CNicknameSignupFailed2Exception();
         }
