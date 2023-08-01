@@ -69,10 +69,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .mvcMatchers(HttpMethod.POST, "/api/**").permitAll()
+                        .mvcMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/signup", "/api/auth/reissue").permitAll()
                         .mvcMatchers(HttpMethod.GET, "/exception/**", "/login/oauth2/code/kakao").permitAll()
-
-                        .anyRequest().permitAll())
+                        .anyRequest().authenticated())
 
                 .exceptionHandling()
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
