@@ -120,8 +120,11 @@ public class DiaryController {
     }
 
     @GetMapping("/diary/{diaryId}")
-    public ResponseEntity<DiaryCreatedDto> diary(@PathVariable Long diaryId){   // DiaryDto에 date(createdAt)이 추가된 응답
-        return ResponseEntity.ok(diaryService.getDiary(diaryId));
+    public ResponseEntity<DiaryCreatedDto> diary(@PathVariable Long diaryId,
+                                                 HttpServletRequest tokenRequest){   // DiaryDto에 date(createdAt)이 추가된 응답
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+        return ResponseEntity.ok(diaryService.getDiary(diaryId, userId));
     }
 
 
