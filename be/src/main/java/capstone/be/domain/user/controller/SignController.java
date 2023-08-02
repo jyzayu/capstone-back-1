@@ -164,7 +164,9 @@ public class SignController {
         if (redisTemplate.opsForValue().get("RT:" + userId) != null){
             redisTemplate.delete("RT:" + userId);
         }
-
+        
+        //일기 삭제
+        diaryService.deleteAllDiariesByUserId(Long.valueOf(userId));
         //회원정보 삭제
         editUserService.deleteUser(Long.parseLong(userId));
 
