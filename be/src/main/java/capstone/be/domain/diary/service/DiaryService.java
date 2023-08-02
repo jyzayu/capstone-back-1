@@ -87,8 +87,8 @@ public class DiaryService {
 
 
     @Transactional(readOnly = true)
-    public DiaryCreatedDto getDiary(Long diaryId){
-        return diaryRepository.findById(diaryId)
+    public DiaryCreatedDto getDiary(Long diaryId, Long userId){
+        return diaryRepository.findByIdAndUserId(diaryId, userId)
                 .map(DiaryCreatedDto::from)
                 .orElseThrow(() -> new CDiaryNotFoundException());
     }
