@@ -149,7 +149,7 @@ public class DiaryService {
 
     public void deleteDiary(Long diaryId,Long userId) {
         Diary diary = diaryRepository.getReferenceById(diaryId);
-        if(diary.getUserId() != userId)
+        if(!diary.getUserId().equals(userId))
             throw new CDiaryNotFoundException();
 
         Set<Long> hashtagIds = diary.getHashtags().stream()
