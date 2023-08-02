@@ -101,6 +101,17 @@ public class DiaryService {
     }
 
     @Transactional
+    public void deleteAllDiariesByUserId(Long userId) {
+        Page<Diary> diaries = getAllDiary(userId, 0, 10);
+
+        List<Diary> userdiaries = diaries.getContent();
+
+        for (Diary diary : userdiaries) {
+            diaryRepository.delete(diary);
+        }
+    }
+
+    @Transactional
     public Page<Diary> getSearchDiaryTitle(String content, int page,int size,Long userid){
         Sort sort = Sort.by("created_at").descending();
         Pageable pageable = PageRequest.of(page,size,sort);
