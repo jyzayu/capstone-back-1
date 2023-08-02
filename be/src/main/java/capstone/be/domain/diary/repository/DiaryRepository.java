@@ -18,6 +18,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     Page<Diary> findByUserIdAndMood(Long userId, String mood, Pageable pageable);
 
     Page<Diary> findByUserId(Long userid,Pageable pageable);
+    Optional<Diary> findByIdAndUserId(Long id, Long userId);
     List<CalendarResponse> findByUserIdAndCreatedAtBetween(Long userId,LocalDateTime startDate, LocalDateTime endDate);
 
     Long countByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
