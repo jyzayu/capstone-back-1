@@ -141,7 +141,11 @@ public class DiaryController {
 
     @DeleteMapping("/diary/{diaryId}")
     public ResponseEntity<?> deleteArticle(@PathVariable Long diaryId,HttpServletRequest tokenRequest){  // 응답 값 없음
-        diaryService.deleteDiary(diaryId);
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+
+        diaryService.deleteDiary(diaryId,userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
     }
 
