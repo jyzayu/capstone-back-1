@@ -184,11 +184,11 @@ public class DiaryService {
 
         Object[] result = (Object[]) query.getSingleResult();
 
-        Long best = ((BigDecimal) result[0]).longValue();
-        Long good = ((BigDecimal) result[1]).longValue();
-        Long normal = ((BigDecimal) result[2]).longValue();
-        Long bad = ((BigDecimal) result[3]).longValue();
-        Long worst = ((BigDecimal) result[4]).longValue();
+        Long best = ((BigDecimal) (result[0] != null ? result[0] : BigDecimal.ZERO)).longValue();
+        Long good = ((BigDecimal) (result[1] != null ? result[1] : BigDecimal.ZERO)).longValue();
+        Long normal = ((BigDecimal) (result[2] != null ? result[2] : BigDecimal.ZERO)).longValue();
+        Long bad = ((BigDecimal) (result[3] != null ? result[3] : BigDecimal.ZERO)).longValue();
+        Long worst = ((BigDecimal) (result[4] != null ? result[4] : BigDecimal.ZERO)).longValue();
 
         return new DiaryMoodTotalResponse(best, good, normal, bad, worst);
     }
