@@ -24,9 +24,3 @@ Spring Boot
 그 외
 * QueryDSL 5.0.0
 
-ERD
-![image](https://github.com/2023-Capstone/capstone-back/assets/55649979/0f3691bf-2354-403a-b7a5-9c28ddc086c5)
-
-노션 API 문서
-https://rune-archeology-04f.notion.site/API-8dfdd2271ba4435b979266f69f9d5364?pvs=4
-
