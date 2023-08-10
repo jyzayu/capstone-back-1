@@ -113,7 +113,7 @@ public class DiaryService {
 
     @Transactional
     public Page<Diary> getSearchDiaryTitle(String content, int page,int size,Long userid){
-        Sort sort = Sort.by("created_at").descending();
+        Sort sort = Sort.by("createdAt").descending();
         Pageable pageable = PageRequest.of(page,size,sort);
         Page<Diary> postList = diaryRepository.findSearchList(content,userid,pageable);
 
