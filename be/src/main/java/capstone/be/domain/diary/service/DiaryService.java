@@ -119,7 +119,7 @@ public class DiaryService {
 
 
         if (postList.isEmpty())
-               postList = diaryRepository.findAll(pageable);
+               postList = diaryRepository.findAllList(userid,pageable);
         return postList;
     }
 
