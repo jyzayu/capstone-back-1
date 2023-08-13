@@ -153,7 +153,7 @@ public class DiaryController {
     }
 
     @GetMapping("/random/diary")
-    public ResponseEntity<DiaryRandomDto> getRandomDiary(HttpServletRequest tokenRequest){
+    public ResponseEntity<?> getRandomDiary(HttpServletRequest tokenRequest){
         String accessToken = jwtProvider.resolveToken(tokenRequest);
         Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
 
@@ -162,7 +162,7 @@ public class DiaryController {
         if(randomDiary != null) {
             return ResponseEntity.ok(randomDiary);
         }else{
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
         }
     }
 
