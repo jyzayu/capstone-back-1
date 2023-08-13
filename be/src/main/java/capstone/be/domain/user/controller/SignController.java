@@ -5,6 +5,7 @@ import capstone.be.domain.user.domain.User;
 import capstone.be.domain.user.dto.KakaoProfile;
 import capstone.be.domain.user.dto.LoginResponseDto;
 import capstone.be.domain.user.dto.RetKakaoOAuth;
+import capstone.be.domain.diary.service.DiaryService;
 import capstone.be.domain.user.dto.UserInfoDto;
 import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.domain.user.service.EditUserService;
@@ -42,6 +43,7 @@ public class SignController {
     private final JwtProvider jwtProvider;
     private final UserRepository userJpaRepo;
     private final RedisTemplate<String, String> redisTemplate;
+    private final DiaryService diaryService;
 
     private final EditUserService editUserService;
 
@@ -164,7 +166,9 @@ public class SignController {
         if (redisTemplate.opsForValue().get("RT:" + userId) != null){
             redisTemplate.delete("RT:" + userId);
         }
-
+        
+        //일기 삭제
+        diaryService.deleteAllDiariesByUserId(Long.valueOf(userId));
         //회원정보 삭제
         editUserService.deleteUser(Long.parseLong(userId));
 

@@ -120,8 +120,11 @@ public class DiaryController {
     }
 
     @GetMapping("/diary/{diaryId}")
-    public ResponseEntity<DiaryCreatedDto> diary(@PathVariable Long diaryId){   // DiaryDto에 date(createdAt)이 추가된 응답
-        return ResponseEntity.ok(diaryService.getDiary(diaryId));
+    public ResponseEntity<DiaryCreatedDto> diary(@PathVariable Long diaryId,
+                                                 HttpServletRequest tokenRequest){   // DiaryDto에 date(createdAt)이 추가된 응답
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+        return ResponseEntity.ok(diaryService.getDiary(diaryId, userId));
     }
 
 
@@ -141,13 +144,21 @@ public class DiaryController {
 
     @DeleteMapping("/diary/{diaryId}")
     public ResponseEntity<?> deleteArticle(@PathVariable Long diaryId,HttpServletRequest tokenRequest){  // 응답 값 없음
-        diaryService.deleteDiary(diaryId);
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+
+        diaryService.deleteDiary(diaryId,userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
     }
 
     @GetMapping("/diary/random")
-    public ResponseEntity<DiaryRandomDto> getRandomDiary(){
-        DiaryRandomDto randomDiary = mainService.getRandomDiary();
+    public ResponseEntity<DiaryRandomDto> getRandomDiary(HttpServletRequest tokenRequest){
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+
+
+        DiaryRandomDto randomDiary = mainService.getRandomDiary(userId);
         if(randomDiary != null) {
             return ResponseEntity.ok(randomDiary);
         }else{
@@ -156,8 +167,12 @@ public class DiaryController {
     }
 
     @GetMapping("/total")
-    public ResponseEntity<DiaryMainTotalResponse> getMainTotal(){
-        return ResponseEntity.ok(mainService.getDiaryTotal());
+    public ResponseEntity<DiaryMainTotalResponse> getMainTotal(HttpServletRequest tokenRequest){
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+
+
+        return ResponseEntity.ok(mainService.getDiaryTotal(userId));
     }
 
     @GetMapping("/diary/findAll")

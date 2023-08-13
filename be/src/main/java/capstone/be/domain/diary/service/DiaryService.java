@@ -87,8 +87,8 @@ public class DiaryService {
 
 
     @Transactional(readOnly = true)
-    public DiaryCreatedDto getDiary(Long diaryId){
-        return diaryRepository.findById(diaryId)
+    public DiaryCreatedDto getDiary(Long diaryId, Long userId){
+        return diaryRepository.findByIdAndUserId(diaryId, userId)
                 .map(DiaryCreatedDto::from)
                 .orElseThrow(() -> new CDiaryNotFoundException());
     }
@@ -98,6 +98,17 @@ public class DiaryService {
         Sort sort = Sort.by("createdAt").descending();
         Pageable pageable = PageRequest.of(page,size,sort);
             return diaryRepository.findByUserId(userid,pageable);
+    }
+
+    @Transactional
+    public void deleteAllDiariesByUserId(Long userId) {
+        Page<Diary> diaries = getAllDiary(userId, 0, 10);
+
+        List<Diary> userdiaries = diaries.getContent();
+
+        for (Diary diary : userdiaries) {
+            diaryRepository.delete(diary);
+        }
     }
 
     @Transactional
@@ -147,8 +158,11 @@ public class DiaryService {
     }
 
 
-    public void deleteDiary(Long diaryId) {
+    public void deleteDiary(Long diaryId,Long userId) {
         Diary diary = diaryRepository.getReferenceById(diaryId);
+        if(!diary.getUserId().equals(userId))
+            throw new CDiaryNotFoundException();
+
         Set<Long> hashtagIds = diary.getHashtags().stream()
                 .map(Hashtag::getId)
                 .collect(Collectors.toUnmodifiableSet());
@@ -184,11 +198,11 @@ public class DiaryService {
 
         Object[] result = (Object[]) query.getSingleResult();
 
-        Long best = ((BigDecimal) result[0]).longValue();
-        Long good = ((BigDecimal) result[1]).longValue();
-        Long normal = ((BigDecimal) result[2]).longValue();
-        Long bad = ((BigDecimal) result[3]).longValue();
-        Long worst = ((BigDecimal) result[4]).longValue();
+        Long best = ((BigDecimal) (result[0] != null ? result[0] : BigDecimal.ZERO)).longValue();
+        Long good = ((BigDecimal) (result[1] != null ? result[1] : BigDecimal.ZERO)).longValue();
+        Long normal = ((BigDecimal) (result[2] != null ? result[2] : BigDecimal.ZERO)).longValue();
+        Long bad = ((BigDecimal) (result[3] != null ? result[3] : BigDecimal.ZERO)).longValue();
+        Long worst = ((BigDecimal) (result[4] != null ? result[4] : BigDecimal.ZERO)).longValue();
 
         return new DiaryMoodTotalResponse(best, good, normal, bad, worst);
     }
