@@ -16,6 +16,7 @@ public class DiaryPageResponse {
 
 
     private int pageNumber;
+    @JsonProperty("isLastPage")
     private boolean isLastPage;
     private List<DiaryContentSearchResponse> list;
 
