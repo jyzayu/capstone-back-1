@@ -134,6 +134,20 @@ public class DiaryService {
                 throw new CDiaryPastEditException();
             }
 
+             String title = dto.getTitle();
+            BProperties firstBlock = dto.getBlocks().get(0);
+
+            
+
+            if (title == null || title.isBlank()) {
+                if(firstBlock.getType().equals("img")){
+                    title = "(이미지)";
+                }else{
+                    title = firstBlock.getData().getText();
+                }
+                diary.setTitle(title);
+            }
+
             if (dto.getTitle() != null) { diary.setTitle(dto.getTitle()); }
             if (dto.getWeather() != null) { diary.setWeather(dto.getWeather()); }
             if (dto.getFont() != null) { diary.setFont(dto.getFont()); }
@@ -191,7 +205,7 @@ public class DiaryService {
                 "SUM(CASE WHEN mood = 'normal' THEN 1 ELSE 0 END) AS normalCount, " +
                 "SUM(CASE WHEN mood = 'bad' THEN 1 ELSE 0 END) AS badCount, " +
                 "SUM(CASE WHEN mood = 'worst' THEN 1 ELSE 0 END) AS worstCount " +
-                "FROM Diary WHERE user_id = ?";
+                "FROM diary WHERE user_id = ?";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter(1, userId);

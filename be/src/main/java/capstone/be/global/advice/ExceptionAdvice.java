@@ -81,7 +81,7 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(CNicknameSignupFailedException.class)
     protected ResponseEntity<CommonResult> nicknameSignupFailedException(HttpServletRequest request, CNicknameSignupFailedException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseService.getFailResult(
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseService.getFailResult(
                 (getMessage("nicknameSignupFailed.code"))
         ));
     }
@@ -91,7 +91,7 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(CWrongEmailFailedException.class)
     protected ResponseEntity<CommonResult> wrongEmailFailedException(HttpServletRequest request, CWrongEmailFailedException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseService.getFailResult(
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseService.getFailResult(
                 (getMessage("wrongEmailFailed.code"))
         ));
     }
@@ -102,7 +102,7 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(CNicknameSignupFailed2Exception.class)
     protected ResponseEntity<CommonResult> nicknameSignupFailed2Exception(HttpServletRequest request, CNicknameSignupFailed2Exception e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseService.getFailResult(
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseService.getFailResult(
                 (getMessage("wrongNickNameFailed.code"))
         ));
     }
@@ -113,7 +113,7 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(CUserExistException.class)
     protected ResponseEntity<CommonResult> existUserException(HttpServletRequest request, CUserExistException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(responseService.getFailResult(
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseService.getFailResult(
                 (getMessage("userExistException.code"))
         ));
     }
@@ -174,7 +174,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(CUserNotFound2Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ResponseEntity<CommonResult> userNotFound2Exception(HttpServletRequest request, Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseService.getFailResult(
+        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(responseService.getFailResult(
                 (getMessage("userNotFound2.code"))));
     }
 
