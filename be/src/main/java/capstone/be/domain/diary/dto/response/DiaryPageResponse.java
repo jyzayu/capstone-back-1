@@ -16,7 +16,7 @@ public class DiaryPageResponse {
 
 
     private int pageNumber;
-    private boolean islastPage;
+    private boolean isLastPage;
     private List<DiaryContentSearchResponse> list;
 
     public static DiaryPageResponse from(List<DiaryContentSearchResponse> res,int page,boolean isLastPage) {
