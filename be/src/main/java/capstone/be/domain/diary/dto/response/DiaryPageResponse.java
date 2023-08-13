@@ -12,6 +12,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonPropertyOrder({"pageNumber", "isLastPage", "list"})
 public class DiaryPageResponse {
 
 
