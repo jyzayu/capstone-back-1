@@ -21,9 +21,11 @@ import java.util.List;
 public class MainService {
     private final DiaryRepository diaryRepository;
 
-    public DiaryRandomDto getRandomDiary(){
+    public DiaryRandomDto getRandomDiary(Long userId){
 //        List<DiaryRandomDto> dto = diaryRepository.findRandom();
-        Long cnt = diaryRepository.count();
+
+
+        Long cnt = diaryRepository.countByUserId(userId);
         int idx = (int) (Math.random() * cnt);
 
 //        System.out.println(idx);
@@ -40,7 +42,7 @@ public class MainService {
         return dto1;
     }
 
-    public DiaryMainTotalResponse getDiaryTotal(){
+    public DiaryMainTotalResponse getDiaryTotal(Long userId){
         LocalDateTime now = LocalDateTime.now();
         int year = now.getYear();
         Month month = now.getMonth();
@@ -51,8 +53,8 @@ public class MainService {
         LocalDateTime yStart = LocalDateTime.of(year, 1, 1, 0, 0, 0);
         LocalDateTime yEnd = startDate.withDayOfMonth(yStart.getMonth().maxLength());
 
-        Long ycnt = diaryRepository.countByCreatedAtBetween(yStart, yEnd);
-        Long mcnt = diaryRepository.countByCreatedAtBetween(startDate, endDate);
+        Long ycnt = diaryRepository.countByUserIdAndCreatedAtBetween(userId, yStart, yEnd);
+        Long mcnt = diaryRepository.countByUserIdAndCreatedAtBetween(userId, startDate, endDate);
 
         return DiaryMainTotalResponse.of(ycnt, mcnt);
     }

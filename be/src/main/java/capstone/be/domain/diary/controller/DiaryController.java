@@ -153,8 +153,12 @@ public class DiaryController {
     }
 
     @GetMapping("/diary/random")
-    public ResponseEntity<DiaryRandomDto> getRandomDiary(){
-        DiaryRandomDto randomDiary = mainService.getRandomDiary();
+    public ResponseEntity<DiaryRandomDto> getRandomDiary(HttpServletRequest tokenRequest){
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+
+
+        DiaryRandomDto randomDiary = mainService.getRandomDiary(userId);
         if(randomDiary != null) {
             return ResponseEntity.ok(randomDiary);
         }else{
@@ -163,8 +167,12 @@ public class DiaryController {
     }
 
     @GetMapping("/total")
-    public ResponseEntity<DiaryMainTotalResponse> getMainTotal(){
-        return ResponseEntity.ok(mainService.getDiaryTotal());
+    public ResponseEntity<DiaryMainTotalResponse> getMainTotal(HttpServletRequest tokenRequest){
+        String accessToken = jwtProvider.resolveToken(tokenRequest);
+        Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
+
+
+        return ResponseEntity.ok(mainService.getDiaryTotal(userId));
     }
 
     @GetMapping("/diary/findAll")
