@@ -205,7 +205,7 @@ public class DiaryService {
                 "SUM(CASE WHEN mood = 'normal' THEN 1 ELSE 0 END) AS normalCount, " +
                 "SUM(CASE WHEN mood = 'bad' THEN 1 ELSE 0 END) AS badCount, " +
                 "SUM(CASE WHEN mood = 'worst' THEN 1 ELSE 0 END) AS worstCount " +
-                "FROM Diary WHERE user_id = ?";
+                "FROM diary WHERE user_id = ?";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter(1, userId);
