@@ -33,7 +33,7 @@ public class EditUserService {
         }
 
         //닉네임 형식 오류(20자 초과 시 예외 처리)
-        if (nickname.length() > 20) {
+        if (nickname == null || nickname.length() > 20) {
             throw new CNicknameSignupFailed2Exception();
         }
 
@@ -56,7 +56,7 @@ public class EditUserService {
         }
 
         //이메일 형식 오류(이메일에 @가 없는 경우 예외 처리)
-        if (!email.contains("@")) {
+       if (email == null || !email.contains("@")) {
             throw new CWrongEmailFailedException();
         }
 
