@@ -26,7 +26,7 @@ public class EditUserService {
 
         Optional<User> otherUser = userRepository.findByNickname(nickname);
 
-        if (otherUser.isEmpty()){//중복되지 않는 닉네임
+        if (otherUser.isEmpty()|| nickname.equals(user.getNickname())){//중복되지 않는 닉네임
             user.setNickname(nickname);//닉네임 수정
         }else{
             throw new CNicknameSignupFailedException();
@@ -49,7 +49,7 @@ public class EditUserService {
 
         Optional<User> otherUser = userRepository.findByEmail(email);
 
-        if (otherUser.isEmpty()){//중복되지 않는 이메일
+        if (otherUser.isEmpty()|| email.equals(user.getEmail())){//중복되지 않는 이메일
             user.setEmail(email);//닉네임 수정
         }else{
             throw new CEmailSignupFailedException();
