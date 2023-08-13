@@ -26,8 +26,6 @@ public class MainService {
 
 
 
-//        Long cnt = diaryRepository.countByUserId(userId);
-//        int idx = (int) (Math.random() * cnt);
 
 //        System.out.println(idx);
         Diary diary = null;

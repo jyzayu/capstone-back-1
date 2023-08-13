@@ -26,14 +26,14 @@ public class EditUserService {
 
         Optional<User> otherUser = userRepository.findByNickname(nickname);
 
-        if (otherUser.isEmpty()){//중복되지 않는 닉네임
+        if (otherUser.isEmpty()|| nickname.equals(user.getNickname())){//중복되지 않는 닉네임
             user.setNickname(nickname);//닉네임 수정
         }else{
             throw new CNicknameSignupFailedException();
         }
 
         //닉네임 형식 오류(20자 초과 시 예외 처리)
-        if (nickname.length() > 20) {
+        if (nickname == null || nickname.length() > 20) {
             throw new CNicknameSignupFailed2Exception();
         }
 
@@ -49,14 +49,14 @@ public class EditUserService {
 
         Optional<User> otherUser = userRepository.findByEmail(email);
 
-        if (otherUser.isEmpty()){//중복되지 않는 이메일
+        if (otherUser.isEmpty()|| email.equals(user.getEmail())){//중복되지 않는 이메일
             user.setEmail(email);//닉네임 수정
         }else{
             throw new CEmailSignupFailedException();
         }
 
         //이메일 형식 오류(이메일에 @가 없는 경우 예외 처리)
-        if (!email.contains("@")) {
+       if (email == null || !email.contains("@")) {
             throw new CWrongEmailFailedException();
         }
 
