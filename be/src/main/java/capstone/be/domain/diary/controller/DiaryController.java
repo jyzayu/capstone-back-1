@@ -162,7 +162,7 @@ public class DiaryController {
         if(randomDiary != null) {
             return ResponseEntity.ok(randomDiary);
         }else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
+            return ResponseEntity.ok("{}");
         }
     }
 
