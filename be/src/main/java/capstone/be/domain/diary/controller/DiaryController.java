@@ -152,7 +152,7 @@ public class DiaryController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
     }
 
-    @GetMapping("/diary/random")
+    @GetMapping("/random/diary")
     public ResponseEntity<DiaryRandomDto> getRandomDiary(HttpServletRequest tokenRequest){
         String accessToken = jwtProvider.resolveToken(tokenRequest);
         Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
