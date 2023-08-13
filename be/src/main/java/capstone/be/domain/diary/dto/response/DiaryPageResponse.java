@@ -1,6 +1,8 @@
 package capstone.be.domain.diary.dto.response;
 
 import capstone.be.domain.diary.domain.Diary;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.*;
 
 import javax.transaction.Transactional;
