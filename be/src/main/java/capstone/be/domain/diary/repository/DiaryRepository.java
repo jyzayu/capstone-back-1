@@ -1,11 +1,13 @@
 package capstone.be.domain.diary.repository;
 
 import capstone.be.domain.diary.domain.Diary;
+import capstone.be.domain.diary.dto.DiaryRandomDto;
 import capstone.be.domain.diary.dto.response.CalendarResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -25,8 +27,8 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     Long countByUserId(Long userId);
 
-//    @Query(nativeQuery = true, value = "SELECT d.title, d.weather, d.mood FROM diary d ORDER BY RAND() LIMIT 1")
-//    List<DiaryRandomDto> findRandom();
+    @Query(nativeQuery = true, value = "SELECT * FROM diary d WHERE user_id = :userId ORDER BY RAND() LIMIT 1")
+    List<Diary> findRandom(@Param("userId") Long userId);
 
 
     @Query(value = "SELECT * from diary  where blocks like %:content% or title like %:content% and user_id = :userid ",nativeQuery = true)

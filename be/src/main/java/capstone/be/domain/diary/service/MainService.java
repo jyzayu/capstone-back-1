@@ -22,24 +22,25 @@ public class MainService {
     private final DiaryRepository diaryRepository;
 
     public DiaryRandomDto getRandomDiary(Long userId){
-//        List<DiaryRandomDto> dto = diaryRepository.findRandom();
+        List<Diary> dto = diaryRepository.findRandom(userId);
 
 
-        Long cnt = diaryRepository.countByUserId(userId);
-        int idx = (int) (Math.random() * cnt);
+
+//        Long cnt = diaryRepository.countByUserId(userId);
+//        int idx = (int) (Math.random() * cnt);
 
 //        System.out.println(idx);
         Diary diary = null;
 
-        Page<Diary> diaryPage = diaryRepository.findAll(PageRequest.of(idx, 1));
-        if(diaryPage.hasContent()){
-            diary = diaryPage.getContent().get(0);
-        }
-        else{
+//        Page<Diary> diaryPage = diaryRepository.findAll(PageRequest.of(idx, 1));
+        if(dto.isEmpty()){
+//            diary = diaryPage.getContent().get(0);
             return null;
         }
-        DiaryRandomDto dto1 = DiaryRandomDto.from(diary);
-        return dto1;
+        else{
+            diary = dto.get(0);
+        }
+        return DiaryRandomDto.from(diary);
     }
 
     public DiaryMainTotalResponse getDiaryTotal(Long userId){
