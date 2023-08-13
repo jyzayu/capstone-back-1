@@ -134,6 +134,20 @@ public class DiaryService {
                 throw new CDiaryPastEditException();
             }
 
+             String title = dto.getTitle();
+            BProperties firstBlock = dto.getBlocks().get(0);
+
+            
+
+            if (title == null || title.isBlank()) {
+                if(firstBlock.getType().equals("img")){
+                    title = "(이미지)";
+                }else{
+                    title = firstBlock.getData().getText();
+                }
+                diary.setTitle(title);
+            }
+
             if (dto.getTitle() != null) { diary.setTitle(dto.getTitle()); }
             if (dto.getWeather() != null) { diary.setWeather(dto.getWeather()); }
             if (dto.getFont() != null) { diary.setFont(dto.getFont()); }
