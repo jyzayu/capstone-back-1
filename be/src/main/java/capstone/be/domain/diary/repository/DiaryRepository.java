@@ -31,9 +31,9 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     List<Diary> findRandom(@Param("userId") Long userId);
 
     @Query(value = "SELECT * from diary  where user_id = :userid ",nativeQuery = true)
-    Page<Diary> findAllList(@Param("userid")Long userid,Pageable pageable);
+    Page<Diary> findAllList(Long userid,Pageable pageable);
 
-    @Query(value = "SELECT * from diary  where blocks like %:content% or title like %:content% and user_id = :userid ",nativeQuery = true)
+    @Query(value = "SELECT * from diary  where (blocks like %:content% or title like %:content%) and user_id = :userid ",nativeQuery = true)
     Page<Diary> findSearchList(String content,Long userid,Pageable pageable);
 
 }
