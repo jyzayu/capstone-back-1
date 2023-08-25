@@ -35,7 +35,6 @@ public class DiaryRandomDto {
                     formattedDate,
                     diary.getWeather(),
                     sb.toString());
-//                            get().getData().getText());
         }
         else{
             return new DiaryRandomDto(
