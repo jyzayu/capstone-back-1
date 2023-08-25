@@ -25,12 +25,26 @@ public class DiaryRandomDto {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDate = diary.getCreatedAt().format(formatter);
 
-        return new DiaryRandomDto(diary.getTitle(),
-                diary.getMood(),
-                formattedDate,
-                diary.getWeather(),
-                diary.getBlocks().stream().filter(x -> x.getType().equals("text")).findFirst().get().getData().getText());
-    }
+        StringBuilder sb = new StringBuilder();
+        diary.getBlocks().stream().filter(x -> x.getType().equals("text")).forEach(x -> sb.append(x.getData().getText().replaceAll("<.*?>", "") + "\n"));
 
+        if(diary.getTitle().equals("")){
+            return new DiaryRandomDto(
+                    diary.getBlocks().stream().filter(x -> x.getType().equals("text")).findFirst().get().getData().getText(),
+                    diary.getMood(),
+                    formattedDate,
+                    diary.getWeather(),
+                    sb.toString());
+//                            get().getData().getText());
+        }
+        else{
+            return new DiaryRandomDto(
+                    diary.getTitle(),
+                    diary.getMood(),
+                    formattedDate,
+                    diary.getWeather(),
+                    sb.toString());
+        }
+    }
 
 }
