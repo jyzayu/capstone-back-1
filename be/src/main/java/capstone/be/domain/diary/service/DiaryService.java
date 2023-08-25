@@ -146,9 +146,7 @@ public class DiaryService {
                     title = firstBlock.getData().getText();
                 }
                 diary.setTitle(title);
-            }
-
-            if (dto.getTitle() != null) { diary.setTitle(dto.getTitle()); }
+            }else{ diary.setTitle(dto.getTitle()); }
             if (dto.getWeather() != null) { diary.setWeather(dto.getWeather()); }
             if (dto.getFont() != null) { diary.setFont(dto.getFont()); }
             if (dto.getMood() != null) { diary.setMood(dto.getMood()); }
