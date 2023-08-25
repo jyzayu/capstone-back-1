@@ -136,6 +136,11 @@ public class DiaryController {
 
         Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
 
+        Long blockId=0L;
+        for (int j = 0 ; j<diaryRequest.getBlocks().stream().count();j++)
+        {
+            diaryRequest.getBlocks().get(j).setId(blockId++);
+        }
         diaryService.updateDiary(diaryId, diaryRequest.toDto(userId));
         //diaryService.updateDiary(diaryId, diaryRequest.toDto());
         return ResponseEntity.ok("");
