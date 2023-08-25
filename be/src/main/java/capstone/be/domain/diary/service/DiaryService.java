@@ -76,7 +76,7 @@ public class DiaryService {
             if(firstBlock.getType().equals("img")){
                 title = "(이미지)";
             }else{
-                title = firstBlock.getData().getText();
+                title = firstBlock.getData().getText().replaceAll("<.*?>", "");
             }
             diary.setTitle(title);
         }
@@ -143,10 +143,11 @@ public class DiaryService {
                 if(firstBlock.getType().equals("img")){
                     title = "(이미지)";
                 }else{
-                    title = firstBlock.getData().getText();
+                    title = firstBlock.getData().getText().replaceAll("<.*?>", "");
                 }
                 diary.setTitle(title);
-            }else{ diary.setTitle(dto.getTitle()); }
+
+            }else{ diary.setTitle(dto.getTitle().replaceAll("<.*?>", "")); }
             if (dto.getWeather() != null) { diary.setWeather(dto.getWeather()); }
             if (dto.getFont() != null) { diary.setFont(dto.getFont()); }
             if (dto.getMood() != null) { diary.setMood(dto.getMood()); }
