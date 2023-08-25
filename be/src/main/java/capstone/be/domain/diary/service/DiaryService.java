@@ -118,8 +118,8 @@ public class DiaryService {
         Page<Diary> postList = diaryRepository.findSearchList(content,userid,pageable);
 
 
-        if (postList.isEmpty())
-               postList = diaryRepository.findAll(pageable);
+        if (postList.isEmpty() && content.equals(""))
+               postList = diaryRepository.findAllList(userid,pageable);
         return postList;
     }
 

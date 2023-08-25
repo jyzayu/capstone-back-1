@@ -121,15 +121,21 @@ public class CalendarMoodController {
         //DiaryEntity를 dto로 변환
         List<Diary> diaryList = sortedDiaries.getContent();
 
+        
         int diaryNum= sortedDiaries.getTotalPages()-1;
+        if(diaryNum == -1)
+            diaryNum =0;
 
         //DIARY_012
         if (diaryNum>size)
             throw new CDiarySearchPageInvalidException();
 
+
+
         if(diaryNum == page)
             lastPage = true;
-
+        else
+            lastPage = false;
         List<DiaryContentSearchResponse> responses = diaryList.stream().map(DiaryContentSearchResponse::from).collect(Collectors.toList());
         DiaryPageResponse responses2 = DiaryPageResponse.from(responses,page,lastPage);
         return responses2;
