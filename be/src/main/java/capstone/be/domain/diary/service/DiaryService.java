@@ -56,6 +56,14 @@ public class DiaryService {
         Set<Hashtag> hashtags = renewHashtagsFromContent(diaryDto);
         diary.addHashtags(hashtags);
 
+        LocalDate today = LocalDate.now();
+        List<Diary> diaryList = diaryRepository.findByUserIdAndCreatedAt(diaryDto.getUserId(), today);
+        Boolean existingDiary = !diaryList.isEmpty();
+        if(existingDiary){
+            //System.out.println(" 이미 오늘 일기를 작성했습니다. ");
+            throw new CDiaryPastEditException();
+        }
+
         String thumbnailUrl;
         Optional<BProperties> bProperties = diaryDto.getBlocks().stream().filter(x -> x.getType().equals("img")).findFirst();
         if(bProperties.isPresent()) {//썸네일 이미지가 있으면
@@ -68,10 +76,10 @@ public class DiaryService {
 
         //title이 비어있을 경우 첫번째 블록 내용을 제목으로 대체
         String title = diaryDto.getTitle();
-        System.out.println("title = " + title);
+        //System.out.println("title = " + title);
         BProperties firstBlock = diaryDto.getBlocks().get(0);
 
-        System.out.println("title = " + title);
+        //System.out.println("title = " + title);
         if (title == null || title.isBlank()) {
             if(firstBlock.getType().equals("img")){
                 title = "(이미지)";
@@ -134,10 +142,9 @@ public class DiaryService {
                 throw new CDiaryPastEditException();
             }
 
-             String title = dto.getTitle();
+            String title = dto.getTitle();
+            //System.out.println("title = " + title);
             BProperties firstBlock = dto.getBlocks().get(0);
-
-            
 
             if (title == null || title.isBlank()) {
                 if(firstBlock.getType().equals("img")){
