@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,5 +36,8 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     @Query(value = "SELECT * from diary  where (blocks like %:content% or title like %:content%) and user_id = :userid ",nativeQuery = true)
     Page<Diary> findSearchList(String content,Long userid,Pageable pageable);
+
+    @Query(value = "SELECT * FROM diary WHERE user_id = :userid AND date(created_at) = :date", nativeQuery = true)
+    List<Diary> findByUserIdAndCreatedAt(Long userid, LocalDate date);
 
 }

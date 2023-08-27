@@ -100,6 +100,13 @@ public class DiaryExceptionAdvice {
                 (getMessage("noSearchPageException.code"))
         ));
     }
+    //DIARY_013
+    @ExceptionHandler(CMoreNewDiaryException.class)
+    protected ResponseEntity<CommonResult> CMoreNewDiaryException(HttpServletRequest request, CMoreNewDiaryException e) {
+        return ResponseEntity.status(400).body(responseService.getFailResult(
+                (getMessage("newDiaryException.code"))
+        ));
+    }
 
 
     private String getMessage(String code) {
