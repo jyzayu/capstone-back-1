@@ -24,7 +24,7 @@ public class AmazonS3Controller {
     //key 값으로 image 적어서 test하면됩니다 ^^
     //test시에 global > config > securityConfig >  securityFilterChain 함수  "/api/auth/**" 부분 "/api/**" 로 수정
     @PostMapping("/upload")
-    public String upload(@RequestParam("image") MultipartFile multipartFile)throws IOException {
+    public String upload(@RequestParam("file") MultipartFile multipartFile)throws IOException {
 
         int idx = multipartFile.getOriginalFilename().lastIndexOf('.');
         String imgformat = multipartFile.getOriginalFilename().substring(idx + 1);
