@@ -35,6 +35,7 @@ public class Diary extends AuditingFields {
     private Long id;
 
     @Setter
+    @Column(nullable = false)
     private Long userId;
 
     @Setter

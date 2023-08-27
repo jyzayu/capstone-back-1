@@ -43,7 +43,7 @@ public class UserPrincipal extends AuditingFields implements UserDetails {
         return UserPrincipal.of(
                 dto.getUserId(),
                 dto.getEmail(),
-                dto.getPassword(),
+                "",
                 dto.getNickname()
         );
     }
