@@ -22,8 +22,6 @@ public class User extends AuditingFields {
     @Setter
     @Column(length = 100, unique = true)
     private String email;
-    @Setter
-    private String password;
 
     @Setter
     @Column(length = 20,unique = true)
@@ -34,17 +32,16 @@ public class User extends AuditingFields {
     protected User() {
     }
 
-    private User(Long userId, String email, String password, String nickname) {
+    private User(Long userId, String email, String nickname) {
         this.userId = userId;
         this.email = email;
-        this.password = password;
         this.nickname = nickname;
 //        this.createdBy = createdBy;
 //        this.modifiedBy = createdBy;
     }
 
-    public static User of(Long userId, String email, String password, String nickname) {
-        return new User(userId, email, password, nickname);
+    public static User of(Long userId, String email, String nickname) {
+        return new User(userId, email, nickname);
     }
 
 
