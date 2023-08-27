@@ -17,6 +17,6 @@ public class UserRequestDto {
     private String nickname;
 
     public User toEntity() {
-        return User.of(userId, email, null, nickname);
+        return User.of(userId, email, nickname);
     }
 }

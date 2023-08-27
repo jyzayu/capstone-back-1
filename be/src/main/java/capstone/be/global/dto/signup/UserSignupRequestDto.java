@@ -20,10 +20,10 @@ public class UserSignupRequestDto {
     private String nickname;
 
     public User toEntity(PasswordEncoder passwordEncoder) {
-        return User.of(userId, email, passwordEncoder.encode(password), nickname);
+        return User.of(userId, email, nickname);
     }
 
     public User toEntity() {
-        return User.of(userId, email, password, nickname);
+        return User.of(userId, email, nickname);
     }
 }
