@@ -196,4 +196,10 @@ public class DiaryController {
         return allDiary;
     }
 
+    @GetMapping("/healthy")
+    public ResponseEntity<Void> checkHealthStatus() {
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
