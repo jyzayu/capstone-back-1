@@ -16,6 +16,7 @@ import capstone.be.domain.hashtag.dto.HashtagDto;
 import capstone.be.domain.hashtag.service.HashtagService;
 import capstone.be.global.advice.exception.diary.CDiaryNotFoundException;
 import capstone.be.global.advice.exception.diary.CDiaryPastEditException;
+import capstone.be.global.advice.exception.diary.CMoreNewDiaryException;
 import capstone.be.s3.AmazonS3Service;
 import lombok.RequiredArgsConstructor;
 
@@ -61,7 +62,7 @@ public class DiaryService {
         Boolean existingDiary = !diaryList.isEmpty();
         if(existingDiary){
             //System.out.println(" 이미 오늘 일기를 작성했습니다. ");
-            throw new CDiaryPastEditException();
+            throw new CMoreNewDiaryException();
         }
 
         String thumbnailUrl;
