@@ -1,11 +1,16 @@
 package capstone.be.s3;
 
+
 import capstone.be.global.advice.exception.s3.S3ImgFormatException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +29,7 @@ public class AmazonS3Controller {
     //key 값으로 image 적어서 test하면됩니다 ^^
     //test시에 global > config > securityConfig >  securityFilterChain 함수  "/api/auth/**" 부분 "/api/**" 로 수정
     @PostMapping("/upload")
-    public String upload(@RequestParam("file") MultipartFile multipartFile)throws IOException {
+    public ResponseEntity upload(@RequestParam("file") MultipartFile multipartFile) throws IOException {
 
         int idx = multipartFile.getOriginalFilename().lastIndexOf('.');
         String imgformat = multipartFile.getOriginalFilename().substring(idx + 1);
@@ -33,13 +38,15 @@ public class AmazonS3Controller {
         if (imgformat.equals("png") || imgformat.equals("jpg") || imgformat.equals("jpeg")) {
         }
         // IMAGE_002
-        else{
+        else {
             throw new S3ImgFormatException();
         }
 
-        String imgUrl = amazonS3Service.upload(multipartFile, "static");
+        String imgUrl = amazonS3Service.upload(multipartFile, "thumbnails");
 
-        return imgUrl;
+
+        URI location = ServletUriComponentsBuilder.fromPath(imgUrl).build().toUri();
+
+        return ResponseEntity.created(location).build();
     }
-
 }
