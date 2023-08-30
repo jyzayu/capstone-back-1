@@ -47,6 +47,6 @@ public class AmazonS3Controller {
 
         URI location = ServletUriComponentsBuilder.fromPath(imgUrl).build().toUri();
 
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(URI.create("https:/"+imgUrl.substring(7))).build();
     }
 }
