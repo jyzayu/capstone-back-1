@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.temporal.TemporalAdjusters;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
@@ -42,18 +43,31 @@ public class MainService {
     }
 
     public DiaryMainTotalResponse getDiaryTotal(Long userId){
-        LocalDateTime now = LocalDateTime.now();
-        int year = now.getYear();
-        Month month = now.getMonth();
+        // 현재 시스템의 날짜를 가져옴
+        LocalDate today = LocalDate.now();
+        
+        // 현재 달의 첫 번째 날
+        LocalDate firstDayOfMonth = today.with(TemporalAdjusters.firstDayOfMonth());
+        
+        // 현재 달의 마지막 날
+        LocalDate lastDayOfMonth = today.with(TemporalAdjusters.lastDayOfMonth());
 
-        LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0, 0);
-        LocalDateTime endDate = startDate.withDayOfMonth(startDate.toLocalDate().lengthOfMonth());
+        // LocalDateTime으로 변환
+        LocalDateTime startOfMonth = firstDayOfMonth.atStartOfDay();
+        LocalDateTime endOfMonth = lastDayOfMonth.atTime(23, 59, 59);
 
-        LocalDateTime yStart = LocalDateTime.of(year, 1, 1, 0, 0, 0);
-        LocalDateTime yEnd = startDate.withDayOfMonth(yStart.getMonth().maxLength());
+        // 올해의 첫 번째 날
+        LocalDate firstDayOfYear = today.withDayOfYear(1);
 
-        Long ycnt = diaryRepository.countByUserIdAndCreatedAtBetween(userId, yStart, yEnd);
-        Long mcnt = diaryRepository.countByUserIdAndCreatedAtBetween(userId, startDate, endDate);
+        // 올해의 마지막 날
+        LocalDate lastDayOfYear = today.withDayOfYear(today.lengthOfYear());
+
+        // LocalDateTime으로 변환
+        LocalDateTime startOfYear = firstDayOfYear.atStartOfDay();
+        LocalDateTime endOfYear = lastDayOfYear.atTime(23, 59, 59);
+
+        Long ycnt = diaryRepository.countByUserIdAndCreatedAtBetween(userId, startOfYear, endOfYear);
+        Long mcnt = diaryRepository.countByUserIdAndCreatedAtBetween(userId, startOfMonth, endOfMonth);
 
         return DiaryMainTotalResponse.of(ycnt, mcnt);
     }
