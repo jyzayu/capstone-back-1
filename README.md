@@ -23,7 +23,17 @@ Spring Boot
 * Spring Aws
 * MySQL Driver
 * Lombok
+Aws
+* Route 53
+* ELB(Elastic Load Balancer)
+* EC2
+* S3
+* Aws Rds
+* Aws SNS
+* Aws EventBridge
+* Aws Cloud Watch
 
 그 외
 * QueryDSL 5.0.0
+* Redis
 
