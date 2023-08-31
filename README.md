@@ -1,7 +1,8 @@
 # capstone-backend
 
-##구성
+## 구성
 ![vv](https://github.com/2023-Capstone/capstone-back/assets/81796331/d2c4614d-66cd-4bc6-809c-3052dea42ee2)
+
 
 ## 개발 환경
 
