@@ -1,5 +1,8 @@
 # capstone-backend
 
+## 구성
+![vv](https://github.com/2023-Capstone/capstone-back/assets/81796331/d2c4614d-66cd-4bc6-809c-3052dea42ee2)
+
 
 ## 개발 환경
 
@@ -20,7 +23,18 @@ Spring Boot
 * Spring Aws
 * MySQL Driver
 * Lombok
+  
+Aws
+* Route 53
+* ELB(Elastic Load Balancer)
+* EC2
+* S3
+* Aws Rds
+* Aws SNS
+* Aws EventBridge
+* Aws Cloud Watch
 
 그 외
 * QueryDSL 5.0.0
+* Redis
 

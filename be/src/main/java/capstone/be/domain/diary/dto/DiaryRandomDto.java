@@ -32,7 +32,7 @@ public class DiaryRandomDto {
         if(diary.getTitle().equals("")){
             return new DiaryRandomDto(
                     diary.getId(),
-                    diary.getBlocks().stream().filter(x -> x.getType().equals("text")).findFirst().get().getData().getText(),
+                    diary.getBlocks().stream().filter(x -> x.getType().equals("text")).findFirst().get().getData().getText().replaceAll("<.*?>", ""),
                     diary.getMood(),
                     formattedDate,
                     diary.getWeather(),
@@ -41,7 +41,7 @@ public class DiaryRandomDto {
         else{
             return new DiaryRandomDto(
                     diary.getId(),
-                    diary.getTitle(),
+                    diary.getTitle().replaceAll("<.*?>", ""),
                     diary.getMood(),
                     formattedDate,
                     diary.getWeather(),
