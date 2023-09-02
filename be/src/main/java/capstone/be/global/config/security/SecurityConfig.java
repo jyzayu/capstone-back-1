@@ -21,15 +21,18 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig   {
     // Authentication 객체에 로그인 완료후 인증유저 정보 UserDetails를 구현한 (User? principal) 객체가 존재
     // UserDetailsService 를 상속받는 PrincipalDetailsService 구현 -
     // (UsernamePasswordAuthenticationFilter 를 상속받는 JwtAuthenticationFilter) 에서 인증을 위해 호출하는 메서드
     //  loadUserByUsername(String username) { memberRepository.findById(username).orElseThrow(() -> new Exception))
     // 이 필터를 시큐리티필터에 추가해 Authentication을 검증한다.
+
 
     // session(context) -> Authentication -> UserDetails(Principal)
     // 인증완료 유저정보로 회원가입및 토큰생성
@@ -51,6 +54,8 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");         // 모든 HTTP Header에 응답 허용
         configuration.addAllowedMethod("*");         // 모든 HTTP Method에 응답 허용
         configuration.setAllowCredentials(true);     // json 서버응답을 js에서 처리할수있게 해줌
+        configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Headers", "Authorization", "x-xsrf-token", "Access-Control-Allow-Headers", "Origin", "Accept", "X-Requested-With",
+                "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers","Location"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -69,8 +74,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .mvcMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/signup", "/api/auth/reissue").permitAll()
-                        .mvcMatchers(HttpMethod.GET, "/exception/**", "/login/oauth2/code/kakao").permitAll()
+                        .mvcMatchers(HttpMethod.POST,"/api/upload","/api/auth/login", "/api/auth/signup", "/api/auth/reissue").permitAll()
+                        .mvcMatchers(HttpMethod.GET,"/api/healthy", "/exception/**", "/login/oauth2/code/kakao").permitAll()
                         .anyRequest().authenticated())
 
                 .exceptionHandling()

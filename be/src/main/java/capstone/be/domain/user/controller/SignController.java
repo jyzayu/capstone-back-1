@@ -23,6 +23,7 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -172,7 +173,7 @@ public class SignController {
         //회원정보 삭제
         editUserService.deleteUser(Long.parseLong(userId));
 
-        return ResponseEntity.ok("");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
     }
 
     @GetMapping("auth/info")
