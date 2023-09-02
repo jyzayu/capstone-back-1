@@ -9,9 +9,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/capstone
-    username: root
-    password: test1234
+    url: jdbc:mysql://springboot-database.cptu2czd8oqz.ap-northeast-2.rds.amazonaws.com:3306/mydatabase
+    username: admin
+    password: capstone
   messages:
     basename: i18n/exception
     encoding: UTF-8
@@ -22,10 +22,10 @@ spring:
     show-sql: true
     open-in-view: false
   url:
-    base: http://localhost:8080
+    base: http://localhost:3000
   config:
     activate:
       on-profile: local
   redis:
-    host: localhost
+    host: 13.209.138.240
     port: 6379
