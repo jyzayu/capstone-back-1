@@ -22,7 +22,7 @@ spring:
     show-sql: true
     open-in-view: false
   url:
-    base: http://localhost:8080
+    base: http://localhost:3000
   config:
     activate:
       on-profile: local

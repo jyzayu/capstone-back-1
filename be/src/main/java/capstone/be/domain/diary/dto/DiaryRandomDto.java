@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DiaryRandomDto {
+    private Long id;
     private String title;
     private String mood;
     private String date;
@@ -30,6 +31,7 @@ public class DiaryRandomDto {
 
         if(diary.getTitle().equals("")){
             return new DiaryRandomDto(
+                    diary.getId(),
                     diary.getBlocks().stream().filter(x -> x.getType().equals("text")).findFirst().get().getData().getText(),
                     diary.getMood(),
                     formattedDate,
@@ -38,6 +40,7 @@ public class DiaryRandomDto {
         }
         else{
             return new DiaryRandomDto(
+                    diary.getId(),
                     diary.getTitle(),
                     diary.getMood(),
                     formattedDate,

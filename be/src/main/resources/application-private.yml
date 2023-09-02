@@ -1,6 +1,6 @@
 social.kakao:
-  client-id: ${KAKAO_OAUTH_CLIENT_ID}
-  client-secret: ${KAKAO_CLIENT_SECERET}
+  client-id: e751159ca81bed9e63019fd186179e47
+  client-secret: r9M8z9vXRF9N8C1Wlw1ALbuCVOW6izSp
   redirect: "/oauth"
   #"/login/oauth2/code/kakao"
   url.token: "https://kauth.kakao.com/oauth/token"
