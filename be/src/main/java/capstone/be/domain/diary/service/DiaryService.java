@@ -124,13 +124,21 @@ public class DiaryService {
     public Page<Diary> getSearchDiaryTitle(String content, int page,int size,Long userid){
         Sort sort = Sort.by("created_at").descending();
         Pageable pageable = PageRequest.of(page,size,sort);
-        Page<Diary> postList = diaryRepository.findSearchList(content,userid,pageable);
+        Page<Diary> postList;
+
+        if(content.startsWith(".")) {
+            postList = diaryRepository.findHashSearchList(content.substring(1), userid, pageable);
+        }
+        else{
+            postList = diaryRepository.findSearchList(content,userid,pageable);
+        }
 
 
         if (postList.isEmpty() && content.equals(""))
                postList = diaryRepository.findAllList(userid,pageable);
         return postList;
     }
+
 
     public void updateDiary(Long diaryId, DiaryDto dto){
         try {
