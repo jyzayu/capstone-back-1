@@ -34,11 +34,11 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     @Query(value = "SELECT * from diary  where user_id = :userid ",nativeQuery = true)
     Page<Diary> findAllList(Long userid,Pageable pageable);
 
+    @Query(value = "SELECT * from diary  where ((blocks like %:content% or title like %:content%) and user_id = :userid) ",nativeQuery = true)
+    Page<Diary> findSearchList(String content,Long userid,Pageable pageable);
+
     @Query(value ="select * from (SELECT * from diary d left join diary_hashtag on d.id = diary_id )as a left join hashtag h  on hashtag_id = h.id where (hashtag_name=:content and user_id=:userid)",nativeQuery = true)
     Page<Diary> findHashSearchList(String content,Long userid,Pageable pageable);
-
-    @Query(value = "SELECT * FROM diary WHERE user_id = :userid AND date(created_at) = :date", nativeQuery = true)
-    List<Diary> findByUserIdAndCreatedAt(Long userid, LocalDate date);
 
     @Query(value = "SELECT * FROM diary WHERE user_id = :userid AND date(created_at) = :date", nativeQuery = true)
     List<Diary> findByUserIdAndCreatedAt(Long userid, LocalDate date);
