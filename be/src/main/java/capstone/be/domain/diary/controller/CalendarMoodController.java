@@ -104,7 +104,7 @@ public class CalendarMoodController {
 
 
     @GetMapping("/search")
-    public DiaryPageResponse getSearchDiaryContents(@RequestParam(value = "text", defaultValue = "d") String text,
+    public DiaryPageResponse getSearchDiaryContents(@RequestParam(value = "text", defaultValue = "") String text,
                                                                    @RequestParam(value = "page", defaultValue = "0") int page,
                                                                    @RequestParam(value = "size", defaultValue = "10") int size,
                                                     HttpServletRequest tokenRequest){
