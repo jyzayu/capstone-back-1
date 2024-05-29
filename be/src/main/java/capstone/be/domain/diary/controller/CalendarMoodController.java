@@ -10,6 +10,7 @@ import capstone.be.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +28,7 @@ public class CalendarMoodController {
 
     private final DiaryService diaryService;
     private final JwtProvider jwtProvider;
+    private final RedisTemplate<String, Long> redisTemplate;
 
     //페이지형태
     @GetMapping("/mood")
@@ -106,8 +108,10 @@ public class CalendarMoodController {
     @GetMapping("/search")
     public DiaryPageResponse getSearchDiaryContents(@RequestParam(value = "text", defaultValue = "") String text,
                                                                    @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                   @RequestParam(value = "size", defaultValue = "10") int size,
+                                                                      @RequestParam(value = "size", defaultValue = "10") int size,
                                                     HttpServletRequest tokenRequest){
+        redisTemplate.opsForValue().set(text, System.nanoTime());
+
         boolean lastPage =false;
 
         String accessToken = jwtProvider.resolveToken(tokenRequest);

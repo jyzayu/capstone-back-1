@@ -108,6 +108,12 @@ public class DiaryExceptionAdvice {
         ));
     }
 
+    @ExceptionHandler(CSearchLogNotFoundException.class)
+    protected ResponseEntity<CommonResult> CSearchLogNotFoundException(HttpServletRequest request, CSearchLogNotFoundException e) {
+        return ResponseEntity.status(400).body(responseService.getFailResult(
+                 (getMessage("SearchLogNotFoundException.code"))
+        ));
+    }
 
     private String getMessage(String code) {
         return getMessage(code, null);

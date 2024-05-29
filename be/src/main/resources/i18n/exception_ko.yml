@@ -61,6 +61,8 @@ noSearchPageException:
   code: "DIARY_012"
 newDiaryException:
   code: "DIARY_013"
+SearchLogNotFoundException:
+  code: "DIARY_014"
 
 ## CALENDAR ###############################
 noDiaryCalendarException:
