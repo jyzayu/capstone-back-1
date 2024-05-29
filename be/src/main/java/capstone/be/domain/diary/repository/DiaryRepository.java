@@ -35,9 +35,9 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     @Query("SELECT d FROM Diary d WHERE d.userId = :userid")
     Page<Diary> findAllList(@Param("userid") Long userid, Pageable pageable);
 
-
-    @Query(value = "SELECT * FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[', ?1, '].data.text'))) LIKE %?2% OR title LIKE %?2%) AND user_id = ?3 ", nativeQuery = true)
-    Page<Diary> findSearchList(Integer idx, String content, Long userid, Pageable pageable);
+// userid 삭제 
+    @Query(value = "SELECT * FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[', ?1, '].data.text'))) LIKE %?2% OR title LIKE %?2%)  ", nativeQuery = true)
+    Page<Diary> findSearchList(Integer idx, String content, Pageable pageable);
 
     @Query("SELECT d FROM Diary d LEFT JOIN d.hashtags h WHERE h.hashtagName = :content AND d.userId = :userid")
     Page<Diary> findHashSearchList(@Param("content") String content, @Param("userid") Long userid, Pageable pageable);

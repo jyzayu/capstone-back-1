@@ -65,7 +65,7 @@ public class Diary extends AuditingFields {
 
 
     @Type(type="json")
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "json")
     @Setter
     private List<BProperties> blocks;
 
