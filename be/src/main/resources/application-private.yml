@@ -1,8 +1,8 @@
 social.kakao:
-  client-id: e751159ca81bed9e63019fd186179e47
+  client-id: 440189d0beaaef7222dfde922bfc23e9
   client-secret: r9M8z9vXRF9N8C1Wlw1ALbuCVOW6izSp
-  redirect: "/oauth"
-  #"/login/oauth2/code/kakao"
+  redirect: "/login/oauth2/code/kakao"
+
   url.token: "https://kauth.kakao.com/oauth/token"
   url.profile: "https://kapi.kakao.com/v2/user/me"
 spring:
