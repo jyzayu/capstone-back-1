@@ -35,9 +35,9 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     @Query("SELECT d FROM Diary d WHERE d.userId = :userid")
     Page<Diary> findAllList(@Param("userid") Long userid, Pageable pageable);
 
-// userid 삭제 
-    @Query(value = "SELECT * FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[', ?1, '].data.text'))) LIKE %?2% OR title LIKE %?2%)  ", nativeQuery = true)
-    Page<Diary> findSearchList(Integer idx, String content, Pageable pageable);
+// userid 삭제
+    @Query(value = "SELECT * FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[*].data.text'))) LIKE %?1% OR title LIKE %?1%)  ", nativeQuery = true)
+    Page<Diary> findSearchList(String content, Pageable pageable);
 
     @Query("SELECT d FROM Diary d LEFT JOIN d.hashtags h WHERE h.hashtagName = :content AND d.userId = :userid")
     Page<Diary> findHashSearchList(@Param("content") String content, @Param("userid") Long userid, Pageable pageable);
@@ -45,5 +45,10 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     @Query(value = "SELECT * FROM diary WHERE user_id = :userid AND date(created_at) = :date", nativeQuery = true)
     List<Diary> findByUserIdAndCreatedAt(Long userid, LocalDate date);
+
+    @Query(value = "SELECT * FROM Diary d WHERE d.created_at >= NOW() - INTERVAL 7 DAY ORDER BY d.like_count DESC LIMIT 10 ", nativeQuery = true)
+    List<Diary> findPopularDiaries();
+
+
 
 }

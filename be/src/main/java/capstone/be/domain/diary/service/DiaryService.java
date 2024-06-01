@@ -58,12 +58,12 @@ public class DiaryService {
         diary.addHashtags(hashtags);
 
         LocalDate today = LocalDate.now();
-        List<Diary> diaryList = diaryRepository.findByUserIdAndCreatedAt(diaryDto.getUserId(), today);
-        Boolean existingDiary = !diaryList.isEmpty();
-        if(existingDiary){
-            //System.out.println(" 이미 오늘 일기를 작성했습니다. ");
-            throw new CMoreNewDiaryException();
-          }
+//        List<Diary> diaryList = diaryRepository.findByUserIdAndCreatedAt(diaryDto.getUserId(), today);
+//        Boolean existingDiary = !diaryList.isEmpty();
+//        if(existingDiary){
+//            //System.out.println(" 이미 오늘 일기를 작성했습니다. ");
+//            throw new CMoreNewDiaryException();
+//          }
 
         String thumbnailUrl;
         Optional<BProperties> bProperties = diaryDto.getBlocks().stream().filter(x -> x.getType().equals("img")).findFirst();
@@ -97,9 +97,16 @@ public class DiaryService {
 
     @Transactional(readOnly = true)
     public DiaryCreatedDto getDiary(Long diaryId, Long userId){
-        return diaryRepository.findByIdAndUserId(diaryId, userId)
+
+        Optional<Diary> diary = diaryRepository.findById(diaryId);
+        diary.get().setViewCount(diary.get().getViewCount() + 1);
+        return diary
                 .map(DiaryCreatedDto::from)
                 .orElseThrow(() -> new CDiaryNotFoundException());
+//
+//        return diaryRepository.findByIdAndUserId(diaryId, userId)
+//                .map(DiaryCreatedDto::from)
+//                .orElseThrow(() -> new CDiaryNotFoundException());
     }
 
     @Transactional
@@ -134,9 +141,8 @@ public class DiaryService {
             sort = Sort.by("created_at").descending();
             pageable = PageRequest.of(page,size,sort);
 
-            for(int idx =0; idx<25; idx++){
-                postSet.addAll(diaryRepository.findSearchList(idx, content, userid, pageable).getContent());
-            }
+
+            postSet.addAll(diaryRepository.findSearchList(content, pageable).getContent());
             postList =new PageImpl<>(new ArrayList<>(postSet), pageable, postSet.size());
         }
 
@@ -262,5 +268,9 @@ public class DiaryService {
         });
 
         return hashtags;
+    }
+
+    public List<Diary> getPopularDiaries(){
+        return diaryRepository.findPopularDiaries();
     }
 }

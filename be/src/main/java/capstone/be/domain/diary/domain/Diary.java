@@ -51,20 +51,22 @@ public class Diary extends AuditingFields {
             joinColumns = @JoinColumn(name = "diaryId"),
             inverseJoinColumns = @JoinColumn(name = "hashtagId")
     )
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<Hashtag> hashtags = new LinkedHashSet<>();
 
     @Setter
     private String font;
-
     @Setter
     private String mood;
-
     @Setter
     private String thumbnail;
+    @Setter
+    private Integer likeCount = 0;
+    @Setter
+    private Integer viewCount = 0;
 
 
-    @Type(type="json")
+    @Type(type = "json")
     @Column(columnDefinition = "json")
     @Setter
     private List<BProperties> blocks;
@@ -75,23 +77,25 @@ public class Diary extends AuditingFields {
     }
 
 
-    private Diary(Long userId,String title, String weather, String mood, String font,String thumbnail, List<BProperties> blocks) {
+    private Diary(Long userId, String title, String weather, String mood, String font, String thumbnail, Integer likeCount, Integer viewCount,  List<BProperties> blocks) {
         this.userId = userId;
         this.title = title;
         this.weather = weather;
         this.mood = mood;
-        this.font=font;
-        this.thumbnail=thumbnail;
-        this.blocks =blocks;
+        this.font = font;
+        this.thumbnail = thumbnail;
+        this.likeCount = likeCount;
+        this.viewCount = viewCount;
+        this.blocks = blocks;
     }
 
-    public static Diary of(Long userId,String title, String weather, String mood, String font, List<BProperties> blocks){
-        return new Diary(userId,title, weather, mood, font, null, blocks);
+    public static Diary of(Long userId, String title, String weather, String mood, String font,  Integer likeCount, Integer viewCount, List<BProperties> blocks) {
+        return new Diary(userId, title, weather, mood, font, null, likeCount, viewCount, blocks);
     }
 
-
-    public static Diary of(Long userId,String title, String weather, String mood, String font,String thumbnail, List<BProperties> blocks){
-        return new Diary(userId,title, weather, mood, font, thumbnail, blocks);
+    // Factory method with thumbnail
+    public static Diary of(Long userId, String title, String weather, String mood, String font, String thumbnail,  Integer likeCount, Integer viewCount, List<BProperties> blocks) {
+        return new Diary(userId, title, weather, mood, font, thumbnail,  likeCount, viewCount, blocks);
     }
 
 

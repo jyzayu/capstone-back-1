@@ -202,4 +202,12 @@ public class DiaryController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/popular")
+    public ResponseEntity<List<DiaryCreatedDto>> getPopular() {
+        List<Diary> diaries = diaryService.getPopularDiaries();
+        List<DiaryCreatedDto> allDiary = diaries.stream().map(DiaryCreatedDto::from).collect(Collectors.toList());
+        return ResponseEntity.ok(allDiary);
+    }
+
+
 }
