@@ -28,7 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
@@ -63,7 +63,7 @@ public class DiaryService {
         if(existingDiary){
             //System.out.println(" 이미 오늘 일기를 작성했습니다. ");
             throw new CMoreNewDiaryException();
-        }
+          }
 
         String thumbnailUrl;
         Optional<BProperties> bProperties = diaryDto.getBlocks().stream().filter(x -> x.getType().equals("img")).findFirst();
@@ -89,7 +89,7 @@ public class DiaryService {
             }
             diary.setTitle(title);
         }
-
+      
 
         return new DiaryCreateResponse(diaryRepository.save(diary).getId());
     }
@@ -118,19 +118,26 @@ public class DiaryService {
         for (Diary diary : userdiaries) {
             diaryRepository.delete(diary);
         }
-    }
+      }
 
     @Transactional
     public Page<Diary> getSearchDiaryTitle(String content, int page,int size,Long userid){
-        Sort sort = Sort.by("created_at").descending();
+        Sort sort = Sort.by("createdAt").descending();
         Pageable pageable = PageRequest.of(page,size,sort);
         Page<Diary> postList;
+        Set<Diary> postSet = new HashSet<>();
 
         if(content.startsWith(".")) {
             postList = diaryRepository.findHashSearchList(content.substring(1), userid, pageable);
         }
         else{
-            postList = diaryRepository.findSearchList(content,userid,pageable);
+            sort = Sort.by("created_at").descending();
+            pageable = PageRequest.of(page,size,sort);
+
+            for(int idx =0; idx<25; idx++){
+                postSet.addAll(diaryRepository.findSearchList(idx, content, userid, pageable).getContent());
+            }
+            postList =new PageImpl<>(new ArrayList<>(postSet), pageable, postSet.size());
         }
 
 
@@ -139,9 +146,8 @@ public class DiaryService {
         return postList;
     }
 
-
     public void updateDiary(Long diaryId, DiaryDto dto){
-        try {
+      try {
             Diary diary = diaryRepository.getReferenceById(diaryId);
 
             //DIARY_009
@@ -169,7 +175,7 @@ public class DiaryService {
             if (dto.getMood() != null) { diary.setMood(dto.getMood()); }
             if (dto.getBlocks() != null) { diary.setBlocks(dto.getBlocks()); }
             if (dto.getThumbnail() != null) { diary.setThumbnail(dto.getThumbnail()); }
-
+        
             Set<Long> hashtagIds = diary.getHashtags().stream()
                     .map(Hashtag::getId)
                     .collect(Collectors.toUnmodifiableSet());
@@ -198,7 +204,7 @@ public class DiaryService {
 
         diaryRepository.deleteById(diaryId);
         diaryRepository.flush();
-
+      
         hashtagIds.forEach(hashtagService::deleteHashtagWithoutArticles);
     }
 
@@ -226,8 +232,7 @@ public class DiaryService {
         query.setParameter(1, userId);
 
         Object[] result = (Object[]) query.getSingleResult();
-
-        Long best = ((BigDecimal) (result[0] != null ? result[0] : BigDecimal.ZERO)).longValue();
+       Long best = ((BigDecimal) (result[0] != null ? result[0] : BigDecimal.ZERO)).longValue();
         Long good = ((BigDecimal) (result[1] != null ? result[1] : BigDecimal.ZERO)).longValue();
         Long normal = ((BigDecimal) (result[2] != null ? result[2] : BigDecimal.ZERO)).longValue();
         Long bad = ((BigDecimal) (result[3] != null ? result[3] : BigDecimal.ZERO)).longValue();
@@ -251,7 +256,7 @@ public class DiaryService {
         Set<String> existingHashtagNames = hashtags.stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet());
 
         hashtagNamesInContent.forEach(newHashtagName -> {
-            if (!existingHashtagNames.contains(newHashtagName)) {
+          if (!existingHashtagNames.contains(newHashtagName)) {
                 hashtags.add(Hashtag.of(newHashtagName));
             }
         });
@@ -259,5 +264,3 @@ public class DiaryService {
         return hashtags;
     }
 }
-
-

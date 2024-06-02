@@ -28,17 +28,20 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     Long countByUserId(Long userId);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM diary d WHERE user_id = :userId ORDER BY RAND() LIMIT 1")
+    @Query(nativeQuery = true, value = "SELECT * FROM diary WHERE user_id = :userId ORDER BY RAND() LIMIT 1")
     List<Diary> findRandom(@Param("userId") Long userId);
 
-    @Query(value = "SELECT * from diary  where user_id = :userid ",nativeQuery = true)
-    Page<Diary> findAllList(Long userid,Pageable pageable);
 
-    @Query(value = "SELECT * from diary  where ((blocks like %:content% or title like %:content%) and user_id = :userid) ",nativeQuery = true)
-    Page<Diary> findSearchList(String content,Long userid,Pageable pageable);
+    @Query("SELECT d FROM Diary d WHERE d.userId = :userid")
+    Page<Diary> findAllList(@Param("userid") Long userid, Pageable pageable);
 
-    @Query(value ="select * from (SELECT * from diary d left join diary_hashtag on d.id = diary_id )as a left join hashtag h  on hashtag_id = h.id where (hashtag_name=:content and user_id=:userid)",nativeQuery = true)
-    Page<Diary> findHashSearchList(String content,Long userid,Pageable pageable);
+
+    @Query(value = "SELECT * FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[', ?1, '].data.text'))) LIKE %?2% OR title LIKE %?2%) AND user_id = ?3 ", nativeQuery = true)
+    Page<Diary> findSearchList(Integer idx, String content, Long userid, Pageable pageable);
+
+    @Query("SELECT d FROM Diary d LEFT JOIN d.hashtags h WHERE h.hashtagName = :content AND d.userId = :userid")
+    Page<Diary> findHashSearchList(@Param("content") String content, @Param("userid") Long userid, Pageable pageable);
+
 
     @Query(value = "SELECT * FROM diary WHERE user_id = :userid AND date(created_at) = :date", nativeQuery = true)
     List<Diary> findByUserIdAndCreatedAt(Long userid, LocalDate date);
