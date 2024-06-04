@@ -6,6 +6,7 @@ import capstone.be.domain.diary.domain.BProperties;
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryRandomDto;
+import capstone.be.domain.diary.dto.Posts;
 import capstone.be.domain.diary.dto.request.DiaryRequest;
 import capstone.be.domain.diary.dto.response.*;
 import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
@@ -17,8 +18,10 @@ import capstone.be.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +29,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,7 +42,6 @@ public class DiaryController {
     private final DiaryService diaryService;
     private final MainService mainService;
     private final JwtProvider jwtProvider;
-    private static Long increaseId = 0L;
 
     @PostMapping("/diary")
     public ResponseEntity<DiaryCreateResponse> createDiary(@RequestBody DiaryRequest diaryRequest,HttpServletRequest tokenRequest)
@@ -203,10 +206,8 @@ public class DiaryController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<DiaryCreatedDto>> getPopular() {
-        List<Diary> diaries = diaryService.getPopularDiaries();
-        List<DiaryCreatedDto> allDiary = diaries.stream().map(DiaryCreatedDto::from).collect(Collectors.toList());
-        return ResponseEntity.ok(allDiary);
+    public ResponseEntity<Posts> getPopular() {
+        return ResponseEntity.ok(diaryService.getPopularDiaries()   );
     }
 
 

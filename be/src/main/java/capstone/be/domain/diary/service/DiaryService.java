@@ -4,6 +4,7 @@ import capstone.be.domain.diary.domain.BProperties;
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryDto;
+import capstone.be.domain.diary.dto.Posts;
 import capstone.be.domain.diary.dto.response.CalendarResponse;
 import capstone.be.domain.diary.dto.response.DiaryMainTotalResponse;
 import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
@@ -18,16 +19,26 @@ import capstone.be.global.advice.exception.diary.CDiaryNotFoundException;
 import capstone.be.global.advice.exception.diary.CDiaryPastEditException;
 import capstone.be.global.advice.exception.diary.CMoreNewDiaryException;
 import capstone.be.s3.AmazonS3Service;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.boot.autoconfigure.cache.CacheProperties;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import java.util.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
@@ -40,6 +51,7 @@ import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -50,6 +62,10 @@ public class DiaryService {
     private final HashtagService hashtagService;
     private final EntityManager entityManager;
     private final AmazonS3Service amazonS3Service;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<Long, Object> postTemplate;
+    private static final String POPULAR_POSTS_KEY = "popularPosts";
+    private static final long CACHE_EXPIRATION = 10; // 캐시 만료 시간 (분 단위)
 
     public DiaryCreateResponse save(DiaryDto diaryDto) throws IOException {
         Diary diary = diaryDto.toEntity();
@@ -95,10 +111,14 @@ public class DiaryService {
     }
 
 
+
     @Transactional(readOnly = true)
     public DiaryCreatedDto getDiary(Long diaryId, Long userId){
+        Optional<Diary> diary = (Optional<Diary>) postTemplate.opsForValue().get(diaryId);
 
-        Optional<Diary> diary = diaryRepository.findById(diaryId);
+        if (diary.isEmpty()) {
+            diary = diaryRepository.findById(diaryId);
+        }
         diary.get().setViewCount(diary.get().getViewCount() + 1);
         return diary
                 .map(DiaryCreatedDto::from)
@@ -270,7 +290,27 @@ public class DiaryService {
         return hashtags;
     }
 
-    public List<Diary> getPopularDiaries(){
-        return diaryRepository.findPopularDiaries();
+//    @Cacheable(value = "popularPosts", key = "10", cacheManager = "redisCacheManager")
+    public Posts getPopularDiaries(){
+        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+        List<Diary> popularPosts = (List<Diary>) redisTemplate.opsForValue().get(POPULAR_POSTS_KEY);
+
+
+        if (CollectionUtils.isEmpty(popularPosts)) {
+            popularPosts = diaryRepository.findPopularDiaries();
+            try {
+                for (Diary popularPost : popularPosts) {
+                    String post = mapper.writeValueAsString(popularPost);
+                    postTemplate.opsForValue().set(popularPost.getId(), post, CACHE_EXPIRATION, TimeUnit.MINUTES);
+                }
+//                redisTemplate.opsForValue().set(POPULAR_POSTS_KEY, popularPosts, CACHE_EXPIRATION, TimeUnit.MINUTES);
+            }
+            catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return new Posts(popularPosts);
     }
 }
