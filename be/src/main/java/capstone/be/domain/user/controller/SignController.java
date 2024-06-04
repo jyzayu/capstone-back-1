@@ -2,15 +2,13 @@
 package capstone.be.domain.user.controller;
 
 import capstone.be.domain.user.domain.User;
-import capstone.be.domain.user.dto.KakaoProfile;
-import capstone.be.domain.user.dto.LoginResponseDto;
-import capstone.be.domain.user.dto.RetKakaoOAuth;
+import capstone.be.domain.user.dto.*;
 import capstone.be.domain.diary.service.DiaryService;
-import capstone.be.domain.user.dto.UserInfoDto;
 import capstone.be.domain.user.repository.UserRepository;
 import capstone.be.domain.user.service.EditUserService;
 import capstone.be.domain.user.service.KakaoService;
 import capstone.be.domain.user.service.SignService;
+import capstone.be.domain.user.service.UserService;
 import capstone.be.global.advice.exception.security.*;
 import capstone.be.global.dto.jwt.ReissueDto;
 import capstone.be.global.dto.jwt.TokenDto;
@@ -45,6 +43,7 @@ public class SignController {
     private final UserRepository userJpaRepo;
     private final RedisTemplate<String, String> redisTemplate;
     private final DiaryService diaryService;
+    private final UserService userService;
 
     private final EditUserService editUserService;
 
@@ -184,4 +183,11 @@ public class SignController {
 
         return ResponseEntity.ok(UserInfoDto.of(user.get().getEmail(), user.get().getNickname()));
     }
+
+    @GetMapping("auth/randomUser")
+    public ResponseEntity<UserResponseDto> getRandomUser(HttpServletRequest request){
+        return ResponseEntity.ok(userService.findRandomUser());
+    }
+
+
 }
