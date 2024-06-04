@@ -2,6 +2,8 @@ package capstone.be.domain.hashtag.domain;
 
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.global.entity.AuditingFields;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -24,6 +26,7 @@ public class Hashtag extends AuditingFields {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ToString.Exclude
     @ManyToMany(mappedBy = "hashtags")
     private Set<Diary> diaries = new LinkedHashSet<>();

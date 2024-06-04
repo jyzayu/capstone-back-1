@@ -3,6 +3,9 @@ package capstone.be.domain.diary.domain;
 import capstone.be.domain.hashtag.domain.Hashtag;
 import capstone.be.global.entity.AuditingFields;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.hypersistence.utils.hibernate.type.json.JsonStringType;
 
 import lombok.Getter;
@@ -28,6 +31,10 @@ import java.util.List;
 @ToString(callSuper = true)
 @Entity
 @TypeDef(name = "json", typeClass = JsonStringType.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@class")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Diary.class, name = "Diary")
+})
 public class Diary extends AuditingFields {
 
     @Id
@@ -44,7 +51,6 @@ public class Diary extends AuditingFields {
 
     @Setter
     private String weather;
-
 
     @JoinTable(
             name = "diary_hashtag",
