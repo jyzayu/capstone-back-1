@@ -31,6 +31,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
+	//LocalDateTime 등의 Java 8 날짜/시간 타입을 처리할 수 있도록 설정
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3' // 버전 2.13.x 중에서 선택
+
 	// security 관련 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
