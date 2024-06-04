@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,6 +25,13 @@ public class UserService {
     public Long save(UserRequestDto userDto) {
         User saved = userJpaRepo.save(userDto.toEntity());
         return saved.getUserId();
+    }
+    @Transactional(readOnly = true)
+    public UserResponseDto findRandomUser() {
+         Long randomId = (long) (Math.random() * 900);
+         User user = userJpaRepo.findById(randomId)
+                .orElseThrow(CUserNotFoundException::new);
+         return new UserResponseDto(user);
     }
 
     @Transactional(readOnly = true)
