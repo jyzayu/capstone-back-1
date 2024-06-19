@@ -8,9 +8,16 @@ build/
 ### Querydsl ###
 src/main/generated
 
+### Docker ###
+docker-compose.yml
+Dockerfile
+.env
+
 ### DB ###
 src/main/resources/application-local.yml
 src/main/resources/application-private.yml
+
+src\main\resources\application-aws.properties
 
 
 ### STS ###
