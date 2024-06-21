@@ -144,4 +144,36 @@ public class CalendarMoodController {
         DiaryPageResponse responses2 = DiaryPageResponse.from(responses,page,lastPage);
         return responses2;
     }
+
+    @GetMapping("/search2")
+    public DiaryPageResponse getSearchDiary(@RequestParam(value = "text", defaultValue = "") String text,
+                                                    @RequestParam(value = "page", defaultValue = "0") int page,
+                                                    @RequestParam(value = "size", defaultValue = "10") int size,
+                                                    HttpServletRequest tokenRequest){
+        boolean lastPage =false;
+        Page<Diary> sortedDiaries = diaryService.searchDiary(text, page, size);
+
+        //DiaryEntity를 dto로 변환
+        List<Diary> diaryList = sortedDiaries.getContent();
+
+
+        int diaryNum= sortedDiaries.getTotalPages()-1;
+        if(diaryNum == -1)
+            diaryNum =0;
+
+        //DIARY_012
+        if (diaryNum>size)
+            throw new CDiarySearchPageInvalidException();
+
+
+
+        if(diaryNum == page)
+            lastPage = true;
+        else
+            lastPage = false;
+        List<DiaryContentSearchResponse> responses = diaryList.stream().map(DiaryContentSearchResponse::from).collect(Collectors.toList());
+
+        DiaryPageResponse responses2 = DiaryPageResponse.from(responses,page,lastPage);
+        return responses2;
+    }
 }

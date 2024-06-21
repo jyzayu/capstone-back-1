@@ -4,41 +4,36 @@ import capstone.be.domain.diary.domain.BProperties;
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
 import capstone.be.domain.diary.dto.DiaryDto;
-import capstone.be.domain.diary.dto.Posts;
+import capstone.be.domain.diary.dto.PopularDto;
 import capstone.be.domain.diary.dto.response.CalendarResponse;
-import capstone.be.domain.diary.dto.response.DiaryMainTotalResponse;
 import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
 import capstone.be.domain.hashtag.dto.HashtagDto;
 import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
-import capstone.be.domain.diary.dto.response.DiaryMoodTotalResponse;
 import capstone.be.domain.diary.repository.DiaryRepository;
 import capstone.be.domain.hashtag.domain.Hashtag;
-import capstone.be.domain.hashtag.dto.HashtagDto;
 import capstone.be.domain.hashtag.service.HashtagService;
 import capstone.be.global.advice.exception.diary.CDiaryNotFoundException;
 import capstone.be.global.advice.exception.diary.CDiaryPastEditException;
-import capstone.be.global.advice.exception.diary.CMoreNewDiaryException;
 import capstone.be.s3.AmazonS3Service;
+import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
-import org.springframework.cache.annotation.Cacheable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Duration;
 import java.util.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
@@ -47,13 +42,13 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional
@@ -62,10 +57,11 @@ public class DiaryService {
     private final HashtagService hashtagService;
     private final EntityManager entityManager;
     private final AmazonS3Service amazonS3Service;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final RedisTemplate<Long, Object> postTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<Long, String> postTemplate;
+    ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
     private static final String POPULAR_POSTS_KEY = "popularPosts";
-    private static final long CACHE_EXPIRATION = 10; // 캐시 만료 시간 (분 단위)
+    private static final long CACHE_EXPIRATION = 6L; // 캐시 만료 시간 (분 단위)
 
     public DiaryCreateResponse save(DiaryDto diaryDto) throws IOException {
         Diary diary = diaryDto.toEntity();
@@ -113,8 +109,9 @@ public class DiaryService {
 
 
     @Transactional(readOnly = true)
-    public DiaryCreatedDto getDiary(Long diaryId, Long userId){
-        Optional<Diary> diary = (Optional<Diary>) postTemplate.opsForValue().get(diaryId);
+    public DiaryCreatedDto getDiary(Long diaryId, Long userId) throws JsonProcessingException {
+        String s =  String.valueOf(postTemplate.opsForValue().get(diaryId));
+        Optional<Diary> diary = Optional.of(mapper.readValue(s, Diary.class));
 
         if (diary.isEmpty()) {
             diary = diaryRepository.findById(diaryId);
@@ -122,7 +119,7 @@ public class DiaryService {
         diary.get().setViewCount(diary.get().getViewCount() + 1);
         return diary
                 .map(DiaryCreatedDto::from)
-                .orElseThrow(() -> new CDiaryNotFoundException());
+                .orElseThrow(CDiaryNotFoundException::new);
 //
 //        return diaryRepository.findByIdAndUserId(diaryId, userId)
 //                .map(DiaryCreatedDto::from)
@@ -149,7 +146,7 @@ public class DiaryService {
 
     @Transactional
     public Page<Diary> getSearchDiaryTitle(String content, int page,int size,Long userid){
-        Sort sort = Sort.by("createdAt").descending();
+        Sort sort = Sort.by("created_at").descending();
         Pageable pageable = PageRequest.of(page,size,sort);
         Page<Diary> postList;
         Set<Diary> postSet = new HashSet<>();
@@ -171,6 +168,39 @@ public class DiaryService {
                postList = diaryRepository.findAllList(userid,pageable);
         return postList;
     }
+
+    private String convertContentToBooleanQuery(String content) {
+        StringBuilder booleanQuery = new StringBuilder();
+        for (int i = 0; i < content.length(); i += 2) {
+            if (i > 0) {
+                booleanQuery.append(" ");
+            }
+            booleanQuery.append("+");
+            if (i + 2 <= content.length()) {
+                booleanQuery.append(content.substring(i, i + 2));
+            } else {
+                booleanQuery.append(content.substring(i));
+            }
+        }
+        return booleanQuery.toString();
+    }
+
+    public Page<Diary> searchDiary(String content, int page, int size) {
+        Sort sort = Sort.by("created_at").descending();
+        Pageable pageable = PageRequest.of(page,size,sort);
+        Page<Diary> postList;
+        Set<Diary> postSet = new HashSet<>();
+
+        String booleanQuery = convertContentToBooleanQuery(content);
+//        postSet.addAll(diaryRepository.findSearchList2(content, pageable).getContent());
+        postSet.addAll(diaryRepository.findSearchList2(content, size, page * size));
+
+        postList = new PageImpl<>(new ArrayList<>(postSet), pageable, postSet.size());
+
+
+        return postList;
+    }
+
 
     public void updateDiary(Long diaryId, DiaryDto dto){
       try {
@@ -291,26 +321,51 @@ public class DiaryService {
     }
 
 //    @Cacheable(value = "popularPosts", key = "10", cacheManager = "redisCacheManager")
-    public Posts getPopularDiaries(){
-        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-
-        List<Diary> popularPosts = (List<Diary>) redisTemplate.opsForValue().get(POPULAR_POSTS_KEY);
-
-
-        if (CollectionUtils.isEmpty(popularPosts)) {
-            popularPosts = diaryRepository.findPopularDiaries();
+    public List<PopularDto> getPopularDiaries(){
+        List<String> popularPosts = redisTemplate.opsForList().range(POPULAR_POSTS_KEY, 0, -1);
+        if (popularPosts != null && !popularPosts.isEmpty()) {
+            return deserializeDiaries(popularPosts);
+        }
+        else {
+            log.info(popularPosts.toString());
+            List<Diary> diaries = diaryRepository.findPopularDiaries();
+            List<PopularDto> popularDtoList = new ArrayList<>();
             try {
-                for (Diary popularPost : popularPosts) {
+                for (Diary popularPost : diaries) {
                     String post = mapper.writeValueAsString(popularPost);
-                    postTemplate.opsForValue().set(popularPost.getId(), post, CACHE_EXPIRATION, TimeUnit.MINUTES);
+                    PopularDto popularDto = new PopularDto(popularPost);
+                    popularDtoList.add(popularDto);
+                    postTemplate.opsForValue().set( popularPost.getId(), post, CACHE_EXPIRATION, TimeUnit.HOURS);
+                    redisTemplate.opsForList().rightPush(POPULAR_POSTS_KEY, mapper.writeValueAsString(popularDto));
                 }
-//                redisTemplate.opsForValue().set(POPULAR_POSTS_KEY, popularPosts, CACHE_EXPIRATION, TimeUnit.MINUTES);
+                redisTemplate.expire(POPULAR_POSTS_KEY, CACHE_EXPIRATION, TimeUnit.HOURS);
             }
             catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
+            return popularDtoList;
         }
-
-        return new Posts(popularPosts);
     }
+
+
+
+    // JSON 형식의 문자열을 List<Diary>로 역직렬화하는 메서드
+    public List<PopularDto> deserializeDiaries(List<String> serializedDiaryList) {
+        // 역직렬화한 결과를 저장할 List<Diary>
+        List<PopularDto> diaryList = new ArrayList<>();
+        // 모든 JSON 문자열에 대해 반복
+        for (String serializedDiary : serializedDiaryList) {
+            try {
+                // JSON 문자열을 Diary 객체로 역직렬화하여 List에 추가
+                PopularDto popularDto = mapper.readValue(serializedDiary, PopularDto.class);
+                diaryList.add(popularDto);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                // 처리 중 에러가 발생한 경우 예외 처리
+            }
+        }
+        return diaryList;
+    }
+
+
 }

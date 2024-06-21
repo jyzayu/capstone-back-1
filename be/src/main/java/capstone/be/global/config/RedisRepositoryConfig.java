@@ -51,11 +51,11 @@ public class RedisRepositoryConfig {
     }
 
     // setKeySerializer, setValueSerializer 설정으로 redis-cli를 통해 직접 데이터를 보는게 가능하다.
-
+//// Redis에 직렬화 할 때 객체의 리스트를 넣으려는데 직렬화가  안 돼서 시도했던 것 StringSerializer로 수정하여 해결
 
     @Bean
-    public RedisTemplate<Long, Object> postTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<Long, Object> template = new RedisTemplate<>();
+    public RedisTemplate<Long, String> postTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<Long, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         // Configure the RedisTemplate
         template.setKeySerializer(new GenericToStringSerializer<>(Long.class));
@@ -68,8 +68,8 @@ public class RedisRepositoryConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
+    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         // Configure the RedisTemplate
         template.setKeySerializer(new StringRedisSerializer());

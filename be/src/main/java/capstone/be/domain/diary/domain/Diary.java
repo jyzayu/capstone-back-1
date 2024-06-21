@@ -31,10 +31,11 @@ import java.util.List;
 @ToString(callSuper = true)
 @Entity
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@class")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = Diary.class, name = "Diary")
-})
+// Redis에 직렬화 할 때 객체의 리스트를 넣으려는데 직렬화가  안 돼서 시도했던 것 StringSerializer로 수정하여 해결
+//@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@class")
+//@JsonSubTypes({
+//        @JsonSubTypes.Type(value = Diary.class, name = "Diary")
+//})
 public class Diary extends AuditingFields {
 
     @Id

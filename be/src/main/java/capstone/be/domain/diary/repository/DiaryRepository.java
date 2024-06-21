@@ -36,8 +36,19 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     Page<Diary> findAllList(@Param("userid") Long userid, Pageable pageable);
 
 // userid 삭제
-    @Query(value = "SELECT * FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[*].data.text'))) LIKE %?1% OR title LIKE %?1%)  ", nativeQuery = true)
+    @Query(value = "SELECT * FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[*].data.text'))) LIKE %?1% OR title LIKE %?1%) ", nativeQuery = true)
     Page<Diary> findSearchList(String content, Pageable pageable);
+
+//    @Query(value = "SELECT * FROM `diary` WHERE MATCH(`combined_block_text`) AGAINST('posuere' IN BOOLEAN MODE) ", nativeQuery = true)
+//    Page<Diary> findSearchList2(String content, Pageable pageable);
+
+//    @Query(value = "SELECT * FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[*].data.text'))) LIKE %?1% OR title LIKE %?1%) ",
+//            countQuery = "SELECT count(*) FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[*].data.text'))) LIKE %?1% OR title LIKE %?1%) ",
+//            nativeQuery = true)
+//    Page<Diary> findSearchList2(String content, Pageable pageable);
+
+    @Query(value = "SELECT * FROM `diary` WHERE MATCH(`combined_block_text`) AGAINST(?1 IN BOOLEAN MODE) ORDER BY created_at DESC LIMIT ?2 OFFSET ?3", nativeQuery = true)
+    List<Diary> findSearchList2(String content, int limit, int offset);
 
     @Query("SELECT d FROM Diary d LEFT JOIN d.hashtags h WHERE h.hashtagName = :content AND d.userId = :userid")
     Page<Diary> findHashSearchList(@Param("content") String content, @Param("userid") Long userid, Pageable pageable);
