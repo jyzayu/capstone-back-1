@@ -9,8 +9,6 @@ build/
 src/main/generated
 
 ### Docker ###
-docker-compose.yml
-Dockerfile
 .env
 
 ### DB ###
