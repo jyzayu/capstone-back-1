@@ -32,7 +32,7 @@ public class JwtProvider {
     @Value("${spring.jwt.secret}")
     private String secretKey;
     private String ROLES = "roles";
-    private final Long accessTokenValidMillisecond =  7* 24 * 60 * 60 * 1000L; // 24 hour
+    private final Long accessTokenValidMillisecond =  30* 24 * 60 * 60 * 1000L; // 24 hour
     private final Long refreshTokenValidMillisecond = 30 * 24 * 60 * 60 * 1000L; // 30 day
     private final CustomUserDetailsService userDetailsService;
     private final RedisTemplate<String, String> redisTemplate;
