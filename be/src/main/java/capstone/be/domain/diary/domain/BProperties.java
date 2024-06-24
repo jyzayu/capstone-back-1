@@ -11,7 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 // Todo: Equals HashCode override하여 select시 update쿼리를 없애도록 하면 N+1 문제인가? hashtag 연관관계가 없는데 모두 조회하는
 // 문제가 발생하여 더 오래걸려버림
-//@EqualsAndHashCode
+@EqualsAndHashCode
 public class BProperties {
 
 
