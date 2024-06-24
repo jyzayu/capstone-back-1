@@ -1,20 +1,16 @@
 package capstone.be.domain.diary.service;
 
 import capstone.be.domain.diary.domain.Diary;
-import capstone.be.domain.diary.dto.DiaryRandomDto;
+import capstone.be.domain.diary.dto.DiarySummaryDto;
 import capstone.be.domain.diary.dto.response.DiaryMainTotalResponse;
 import capstone.be.domain.diary.repository.DiaryRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.temporal.TemporalAdjusters;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -23,7 +19,7 @@ import java.util.List;
 public class MainService {
     private final DiaryRepository diaryRepository;
 
-    public DiaryRandomDto getRandomDiary(Long userId){
+    public DiarySummaryDto getRandomDiary(Long userId){
         List<Diary> dto = diaryRepository.findRandom(userId);
 
 
@@ -40,7 +36,7 @@ public class MainService {
         else{
             diary = dto.get(0);
         }
-        return DiaryRandomDto.from(diary);
+        return DiarySummaryDto.from(diary);
     }
 
     public DiaryMainTotalResponse getDiaryTotal(Long userId){
@@ -72,6 +68,7 @@ public class MainService {
 
         return DiaryMainTotalResponse.of(ycnt, mcnt);
     }
+
 
 
 }

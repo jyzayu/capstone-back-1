@@ -5,7 +5,7 @@ package capstone.be.domain.diary.controller;
 import capstone.be.domain.diary.domain.BProperties;
 import capstone.be.domain.diary.domain.Diary;
 import capstone.be.domain.diary.dto.DiaryCreatedDto;
-import capstone.be.domain.diary.dto.DiaryRandomDto;
+import capstone.be.domain.diary.dto.DiarySummaryDto;
 import capstone.be.domain.diary.dto.PopularDto;
 import capstone.be.domain.diary.dto.request.DiaryRequest;
 import capstone.be.domain.diary.dto.response.DiaryCreateResponse;
@@ -158,7 +158,7 @@ public class DiaryController {
         Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
 
 
-        DiaryRandomDto randomDiary = mainService.getRandomDiary(userId);
+        DiarySummaryDto randomDiary = mainService.getRandomDiary(userId);
         if (randomDiary != null) {
             return ResponseEntity.ok(randomDiary);
         } else {

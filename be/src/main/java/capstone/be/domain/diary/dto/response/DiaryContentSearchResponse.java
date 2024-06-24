@@ -1,6 +1,8 @@
 package capstone.be.domain.diary.dto.response;
 
 import capstone.be.domain.diary.domain.Diary;
+import capstone.be.domain.diary.dto.DiarySearchDto;
+import capstone.be.domain.diary.dto.DiarySummaryDto;
 import capstone.be.domain.hashtag.domain.Hashtag;
 import capstone.be.domain.hashtag.dto.HashtagDto;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -26,20 +28,18 @@ public class DiaryContentSearchResponse {
     private String title;
     private String createAt;
     private String context;
-    private Set<String> hashtag;
+//    private Set<String> hashtag;
 
 
-
-
-    public static DiaryContentSearchResponse from(final Diary diary) {
+    public static DiaryContentSearchResponse from2(final Diary diary) {
         //문자열 형태로 변환해달라는 프론트의 요청으로 response format 수정
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDate = diary.getCreatedAt().format(formatter);
         String contents ;
 
 
-        if (diary.getBlocks().get(0).getType().equals("text")|| diary.getBlocks().get(0).getType().equals("heading"))
-            contents = diary.getBlocks().get(0).getData().getText();
+        if (!diary.getCombinedBlockText().isEmpty())
+            contents = diary.getCombinedBlockText();
         else
             contents = null;
 
@@ -47,8 +47,31 @@ public class DiaryContentSearchResponse {
                 diary.getId(),
                 diary.getTitle(),
                 formattedDate,
-                contents,
-                diary.getHashtags().stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet())
+                contents
+//                diary.getHashtags().stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet())
+        );
+    }
+
+    public static DiaryContentSearchResponse from(final DiarySearchDto diary) {
+        //문자열 형태로 변환해달라는 프론트의 요청으로 response format 수정
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = diary.getCreatedAt().format(formatter);
+        String contents ;
+
+
+        if (diary.getCombinedBlockText() != null) {
+            System.out.println("combined is null");
+            contents = diary.getCombinedBlockText();
+        }
+        else
+            contents = null;
+
+        return new DiaryContentSearchResponse(
+                diary.getId(),
+                diary.getTitle(),
+                formattedDate,
+                contents
+//                diary.getHashtags().stream().map(Hashtag::getHashtagName).collect(Collectors.toUnmodifiableSet())
         );
     }
 }

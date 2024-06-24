@@ -1,14 +1,14 @@
 package capstone.be.domain.diary.repository;
 
 import capstone.be.domain.diary.domain.Diary;
-import capstone.be.domain.diary.dto.DiaryRandomDto;
+import capstone.be.domain.diary.dto.DiarySearchDto;
+import capstone.be.domain.diary.dto.DiarySummaryDto;
 import capstone.be.domain.diary.dto.response.CalendarResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,11 +33,14 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
 
     @Query("SELECT d FROM Diary d WHERE d.userId = :userid")
-    Page<Diary> findAllList(@Param("userid") Long userid, Pageable pageable);
+    Page<Object[]> findAllList(@Param("userid") Long userid, Pageable pageable);
 
 // userid 삭제
-    @Query(value = "SELECT * FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[*].data.text'))) LIKE %?1% OR title LIKE %?1%) ", nativeQuery = true)
-    Page<Diary> findSearchList(String content, Pageable pageable);
+//    @Query(value = "SELECT id, created_at AS createdAt, title, weather, mood, blocks FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, CONCAT('$[*].data.text')))) LIKE %?1% OR title LIKE %?1% ", nativeQuery = true)
+//    Page<Object[]> findSearchListWithoutHashtagsNative(String content, Pageable pageable);
+
+    @Query(value = "SELECT id, created_at AS createdAt, title, weather, mood, blocks FROM diary WHERE (JSON_UNQUOTE(JSON_EXTRACT(blocks, '$[*].data.text')) LIKE %?1% OR title LIKE %?1%)", nativeQuery = true)
+    Page<Object[]> findSearchListWithoutHashtagsNative(String content, Pageable pageable);
 
 //    @Query(value = "SELECT * FROM `diary` WHERE MATCH(`combined_block_text`) AGAINST('posuere' IN BOOLEAN MODE) ", nativeQuery = true)
 //    Page<Diary> findSearchList2(String content, Pageable pageable);

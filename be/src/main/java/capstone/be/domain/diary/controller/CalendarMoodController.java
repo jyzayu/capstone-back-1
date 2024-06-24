@@ -1,12 +1,15 @@
 package capstone.be.domain.diary.controller;
 
 import capstone.be.domain.diary.domain.Diary;
+import capstone.be.domain.diary.dto.DiarySearchDto;
+import capstone.be.domain.diary.dto.DiarySummaryDto;
 import capstone.be.domain.diary.dto.response.*;
 import capstone.be.domain.diary.service.DiaryService;
 import capstone.be.global.advice.exception.calendar.CDiaryCalendarException;
 import capstone.be.global.advice.exception.diary.CDiarySearchPageInvalidException;
 import capstone.be.global.advice.exception.diary.CPageNotFoundException;
 import capstone.be.global.jwt.JwtProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -109,7 +112,7 @@ public class CalendarMoodController {
     public DiaryPageResponse getSearchDiaryContents(@RequestParam(value = "text", defaultValue = "") String text,
                                                                    @RequestParam(value = "page", defaultValue = "0") int page,
                                                                       @RequestParam(value = "size", defaultValue = "10") int size,
-                                                    HttpServletRequest tokenRequest){
+                                                    HttpServletRequest tokenRequest) throws JsonProcessingException {
         redisTemplate.opsForValue().set(text, System.nanoTime());
 
         boolean lastPage =false;
@@ -118,12 +121,12 @@ public class CalendarMoodController {
 
         Long userId = Long.parseLong(jwtProvider.getSubjects(accessToken));
 
-        Page<Diary> sortedDiaries = diaryService.getSearchDiaryTitle(text, page, size,userId);
+        Page<DiarySearchDto> sortedDiaries = diaryService.getSearchDiaryTitle(text, page, size,userId);
 
 
 
         //DiaryEntity를 dto로 변환
-        List<Diary> diaryList = sortedDiaries.getContent();
+        List<DiarySearchDto> diaryList = sortedDiaries.getContent();
 
         
         int diaryNum= sortedDiaries.getTotalPages()-1;
@@ -151,10 +154,10 @@ public class CalendarMoodController {
                                                     @RequestParam(value = "size", defaultValue = "10") int size,
                                                     HttpServletRequest tokenRequest){
         boolean lastPage =false;
-        Page<Diary> sortedDiaries = diaryService.searchDiary(text, page, size);
+        Page<DiarySearchDto> sortedDiaries = diaryService.searchDiary(text, page, size);
 
         //DiaryEntity를 dto로 변환
-        List<Diary> diaryList = sortedDiaries.getContent();
+        List<DiarySearchDto> diaryList = sortedDiaries.getContent();
 
 
         int diaryNum= sortedDiaries.getTotalPages()-1;
