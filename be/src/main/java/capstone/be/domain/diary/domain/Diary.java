@@ -58,7 +58,7 @@ public class Diary extends AuditingFields {
             joinColumns = @JoinColumn(name = "diaryId"),
             inverseJoinColumns = @JoinColumn(name = "hashtagId")
     )
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private Set<Hashtag> hashtags = new LinkedHashSet<>();
 
     @Setter
@@ -78,6 +78,8 @@ public class Diary extends AuditingFields {
     @Setter
     private List<BProperties> blocks;
 
+    private String combinedBlockText;
+
     public Diary() {
 
 
@@ -94,6 +96,7 @@ public class Diary extends AuditingFields {
         this.likeCount = likeCount;
         this.viewCount = viewCount;
         this.blocks = blocks;
+        this.combinedBlockText = blocks.get(0).getData().getText() + blocks.get(1).getData().getText() + blocks.get(2).getData().getText();
     }
 
     public static Diary of(Long userId, String title, String weather, String mood, String font,  Integer likeCount, Integer viewCount, List<BProperties> blocks) {
